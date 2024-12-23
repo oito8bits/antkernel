@@ -17,6 +17,9 @@ DRIVERS_SRCS = $(shell find drivers/ -name '*.c')
 DRIVERS_OBJS = $(DRIVERS_SRCS:.c=.o)
 DRIVERS_INCLUDE = drivers/
 
+MM_SRCS = $(wildcard mm/*.c)
+MM_OBJS = $(MM_SRCS:.c=.o)
+
 ANT_INCLUDE = include/
 
 CC = gcc
@@ -25,7 +28,7 @@ LD = ld
 CFLAGS = -ffreestanding -nostdlib -I $(ANT_INCLUDE) -I $(DRIVERS_INCLUDE) -I $(X86-64_INCLUDE) -I $(LIBK_INCLUDE)
 LDFLAGS = -T arch/x86_64/ant.ld -z noexecstack
 
-$(KERNEL_NAME): $(X86-64_OBJS) $(KERNEL_OBJS) $(DRIVERS_OBJS) $(LIBK_OBJS)
+$(KERNEL_NAME): $(X86-64_OBJS) $(KERNEL_OBJS) $(DRIVERS_OBJS) $(LIBK_OBJS) $(MM_OBJS)
 	$(LD) $(LDFLAGS) $^ -o $@
 	strip $(KERNEL_NAME)
 
