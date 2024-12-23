@@ -1,5 +1,5 @@
-#include <stdlib.h>
-#include <string.h>
+#include <libk/stdlib.h>
+#include <libk/string.h>
 
 void itoa(char *source, s64 number)
 {

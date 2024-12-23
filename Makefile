@@ -11,11 +11,11 @@ KERNEL_OBJS = $(KERNEL_C_SRCS:.c=.o)
 
 LIBK_SRCS = $(wildcard libk/*.c)
 LIBK_OBJS = $(LIBK_SRCS:.c=.o)
-LIBK_INCLUDE = libk/include
+LIBK_INCLUDE = include/
 
 DRIVERS_SRCS = $(shell find drivers/ -name '*.c')
 DRIVERS_OBJS = $(DRIVERS_SRCS:.c=.o)
-DRIVERS_INCLUDE = drivers/
+DRIVERS_INCLUDE = include/drivers/
 
 MM_SRCS = $(wildcard mm/*.c)
 MM_OBJS = $(MM_SRCS:.c=.o)
@@ -25,7 +25,7 @@ ANT_INCLUDE = include/
 CC = gcc
 AS = as
 LD = ld
-CFLAGS = -ffreestanding -nostdlib -I $(ANT_INCLUDE) -I $(DRIVERS_INCLUDE) -I $(X86-64_INCLUDE) -I $(LIBK_INCLUDE)
+CFLAGS = -ffreestanding -nostdlib -I $(ANT_INCLUDE) -I $(DRIVERS_INCLUDE) -I $(X86-64_INCLUDE)
 LDFLAGS = -T arch/x86_64/ant.ld -z noexecstack
 
 $(KERNEL_NAME): $(X86-64_OBJS) $(KERNEL_OBJS) $(DRIVERS_OBJS) $(LIBK_OBJS) $(MM_OBJS)
@@ -41,4 +41,4 @@ $(KERNEL_NAME): $(X86-64_OBJS) $(KERNEL_OBJS) $(DRIVERS_OBJS) $(LIBK_OBJS) $(MM_
 .PHONY: clean
 
 clean:
-	rm -rf $(X86-64_OBJS) $(KERNEL_OBJS) $(DRIVERS_OBJS) $(KERNEL_NAME)
+	rm -rf $(X86-64_OBJS) $(KERNEL_OBJS) $(DRIVERS_OBJS) $(LIBK_OBJS) $(MM_OBJS) $(KERNEL_NAME)

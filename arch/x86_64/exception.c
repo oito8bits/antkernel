@@ -1,5 +1,5 @@
 #include <ant/types.h>
-#include <kprintf.h>
+#include <libk/kprintf.h>
 
 void exception_handler_c(unsigned long error_code)
 {

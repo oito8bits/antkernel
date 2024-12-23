@@ -1,7 +1,7 @@
-#include <kprintf.h>
+#include <libk/kprintf.h>
 #include <stdarg.h>
 #include <fb/fb.h>
-#include <stdlib.h>
+#include <libk/stdlib.h>
 
 static void print_hex(u64 number, _Bool uppercase)
 {

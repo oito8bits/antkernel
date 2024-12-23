@@ -4,7 +4,7 @@
 #include <gdt.h>
 #include <idt.h>
 #include <heap.h>
-#include <kprintf.h>
+#include <libk/kprintf.h>
 
 extern unsigned long kernel_table_level_2; 
 
