@@ -3,7 +3,7 @@
 
 #include <ant/types.h>
 #include <ant/boot.h>
-#include <cr4.h>
+#include "cr4.h"
 
 #define PAGE_SIZE 4096
 
@@ -43,14 +43,5 @@ struct pte
   u32 ignored3: 11;
   u32 xd: 1; 
 };
-
-typedef struct pde p4d_t;
-typedef struct pde pud_t;
-typedef struct pde pmd_t;
-typedef struct pte pte_t;
-typedef u64 pgt_t;
-
-u64 get_pmd_idx(virt_addr_t virt_addr);
-int paging_init(void);
 
 #endif

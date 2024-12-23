@@ -1,4 +1,5 @@
-#include <paging.h>
+#include <ant/paging.h>
+#include "table_entry.h"
 
 extern virt_addr_t virtual_base; 
 
@@ -13,8 +14,6 @@ extern virt_addr_t _end_rodata;
 
 extern virt_addr_t _start_bss;
 extern virt_addr_t _end_bss;
-
-static p4d_t p4d[512];
 
 u64 get_p4d_idx(virt_addr_t virt_addr)
 {

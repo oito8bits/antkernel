@@ -1,3 +1,4 @@
+#include "exception.h"
 #include <ant/types.h>
 #include <libk/kprintf.h>
 

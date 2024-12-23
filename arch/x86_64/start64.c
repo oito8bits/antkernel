@@ -1,10 +1,8 @@
 #include <ant/boot.h>
-#include <paging.h>
 #include <fb/fb.h>
-#include <gdt.h>
-#include <idt.h>
-#include <heap.h>
-#include <libk/kprintf.h>
+#include "gdt.h"
+#include "heap.h"
+#include "idt.h"
 
 extern unsigned long kernel_table_level_2; 
 
