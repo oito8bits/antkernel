@@ -41,18 +41,7 @@ u64 get_offset_idx(virt_addr_t virt_addr)
   return virt_addr & 0xfff;
 }
 
-void map_kernel(void)
-{
-  
-}
-
 phys_addr_t paging_virt_to_phys(virt_addr_t addr)
 {
   return addr - virtual_base;
-}
-
-int paging_init(void)
-{
-  map_kernel(); 
-  return 0;
 }
