@@ -8,8 +8,6 @@ static u16 cursor_x, cursor_y;
 static u32 background_color;
 static u32 foreground_color;
 
-static void plot_pixel(u16, u16, u32 color);
-
 static void plot_pixel(u16 x, u16 y, u32 color)
 {
   frame_buffer_base[y * width + x] = color;
@@ -21,7 +19,7 @@ static void new_line(void)
   cursor_y++;
 }
 
-static void fb_draw_char(u8 c)
+static void draw_char(u8 c)
 {
   u16 i, j;
   u8 bitmap;
@@ -98,7 +96,7 @@ void fb_put_char(u8 c)
   if(cursor_y >= height / FONT_HEIGHT)
     fb_scrollup();
 
-  fb_draw_char(c);
+  draw_char(c);
   
   if(cursor_x < width / FONT_WIDTH - 1)
     cursor_x++;
