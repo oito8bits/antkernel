@@ -1,4 +1,4 @@
-#include "heap.h"
+#include <mm/early_heap.h>
 
 extern u64 _start_brk;
 extern u64 _end_brk;

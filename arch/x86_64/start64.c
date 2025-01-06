@@ -1,7 +1,8 @@
 #include <ant/boot.h>
 #include <fb/fb.h>
+#include <libk/kprintf.h>
 #include "gdt.h"
-#include "heap.h"
+#include <mm/early_heap.h>
 #include "idt.h"
 
 extern unsigned long kernel_table_level_2; 
