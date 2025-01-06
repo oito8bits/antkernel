@@ -3,6 +3,26 @@
 
 #include "types.h"
 
+typedef enum
+{
+  efi_reserved_memory_type,
+  efi_loader_code,
+  efi_loader_data,
+  efi_boot_services_code,
+  efi_boot_services_data,
+  efi_runtime_services_code,
+  efi_runtime_services_data,
+  efi_conventional_memory,
+  efi_unusable_memory,
+  efi_acpi_reclaim_memory,
+  efi_acpi_memory_nvs,
+  efi_memory_mapped_io,
+  efi_memory_mapped_io_port_space,
+  efi_pal_code,
+  efi_persistent_memory,
+  efi_max_memory_type
+} efi_memory_type;
+
 typedef struct
 {
   u32 type;
