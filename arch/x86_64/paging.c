@@ -22,7 +22,7 @@ u64 get_p4d_idx(virt_addr_t virt_addr)
 
 u64 get_pud_idx(virt_addr_t virt_addr)
 {
-  return virt_addr >> 30 & 0xff; 
+  return virt_addr >> 30 & 0x1ff; 
 }
 
 u64 get_pmd_idx(virt_addr_t virt_addr)
