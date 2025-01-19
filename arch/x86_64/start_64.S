@@ -39,7 +39,7 @@ kernel_table_level_3:
 
 .align 4096
 kernel_identity_table_level_3:
-  .quad kernel_identity_table_level_2 - START_KERNEL + 0x3
+  .quad kernel_table_level_2 - START_KERNEL + 0x3
   .fill 511, 8, 0
 
 .align 4096
@@ -50,11 +50,6 @@ kernel_table_level_2:
     .quad i | 0x83
     .set i, i + (1 << 21)
   .endr
-
-.align 4096
-kernel_identity_table_level_2:
-  .quad 0x83
-  .fill 511, 8, 0
 
 .comm stack_start, 16384
 stack_end:
