@@ -9,6 +9,6 @@ typedef struct pde pmd_t;
 typedef struct pte pte_t;      
 typedef u64 pgt_t;             
     
-u64 get_pmd_idx(virt_addr_t virt_addr);
+u64 get_l2_idx(virt_addr_t virt_addr);
 
 #endif

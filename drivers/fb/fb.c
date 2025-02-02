@@ -54,7 +54,7 @@ static void draw_char(u8 c)
 
 static void map_frame_buffer(uintptr_t phys_base, void *pte)                                                                          
 {   
-  u64 idx = get_pmd_idx((virt_addr_t) frame_buffer_base); 
+  u64 idx = get_l2_idx((virt_addr_t) frame_buffer_base); 
   *((unsigned long *) pte + idx) = (uintptr_t) phys_base + 0x83;                                                                      
 }
 

@@ -15,27 +15,27 @@ extern virt_addr_t _end_rodata;
 extern virt_addr_t _start_bss;
 extern virt_addr_t _end_bss;
 
-u64 get_p4d_idx(virt_addr_t virt_addr)
+u64 get_l4_idx(virt_addr_t virt_addr)
 {
   return virt_addr >> 39 & 0x1ff;
 }
 
-u64 get_pud_idx(virt_addr_t virt_addr)
+u64 get_l3_idx(virt_addr_t virt_addr)
 {
   return virt_addr >> 30 & 0x1ff; 
 }
 
-u64 get_pmd_idx(virt_addr_t virt_addr)
+u64 get_l2_idx(virt_addr_t virt_addr)
 {
   return virt_addr >> 21 & 0x1ff;
 }
 
-u64 get_pte_idx(virt_addr_t virt_addr)
+u64 get_l1_idx(virt_addr_t virt_addr)
 {
   return virt_addr >> 12 & 0x1ff;
 }
 
-u64 get_offset_idx(virt_addr_t virt_addr)
+u64 get_l0_idx(virt_addr_t virt_addr)
 {
   return virt_addr & 0xfff;
 }
