@@ -10,7 +10,8 @@
 .section .text
 _start:
   cli
-  addq  $START_KERNEL, %rdi
+  callq boot_init
+  movq  %rax, %rdi
   movq  $stack_end, %rsp
   leaq  kernel_table_level_4(%rip), %rax
   movq  %rax, %cr3
