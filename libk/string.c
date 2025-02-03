@@ -21,3 +21,13 @@ void strrev(char *string)
   }
 }
 
+void *memcpy(void *dest, const void *src, u64 n)
+{
+  u8 *p = dest;
+  const u8 *q = src;
+
+  while(n--)
+    *p++ = *q++;;
+
+  return dest;
+}

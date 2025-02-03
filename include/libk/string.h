@@ -4,7 +4,7 @@
 #include <ant/types.h>
 
 size_t strlen(char *);
-
 void strrev(char *);
+void *memcpy(void *, const void *, u64);
 
 #endif
