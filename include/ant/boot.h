@@ -63,6 +63,7 @@ struct boot_info
   struct gop_video_mode mode;
 };
 
-virt_addr_t boot_init(struct boot_info *);
+void boot_init(struct boot_info *);
+void *boot_get_info(void);
 
 #endif

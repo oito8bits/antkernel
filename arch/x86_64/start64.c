@@ -7,11 +7,13 @@
 
 extern unsigned long kernel_table_level_2; 
 
-int start64(struct boot_info *info)
+int start64(void)
 {
+  struct boot_info *boot_info = boot_get_info();
+
   early_heap_init();
   gdt_load();
   idt_load();
-  fb_init(info, (void *) &kernel_table_level_2);
+  fb_init(boot_info, (void *) &kernel_table_level_2);
   return 0;
 }
