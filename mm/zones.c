@@ -1,9 +1,13 @@
 #include <mm/zones.h>
 #include <libk/kprintf.h>
+#include <mm/map.h>
+
+struct zone zones[ZONES];
 
 void zones_init(struct memory_map *map)
 {
-  size_t i;
-  for(i = 0; i < 10; i++)
-    kprintf("number of pages: %#lx\n", map->memory_descriptor[i].number_of_pages);
+  u64 pages = map_get_memory_pages(map);
+
+  zones[DMA_ZONE_IDX].npages = DMA_ZONE_SIZE;
+  zones[NORMAL_ZONE_IDX].npages = DMA_ZONE_SIZE - pages;
 }

@@ -5,7 +5,13 @@
 #include <ant/types.h>
 #include <ant/list.h>
 
+#define DMA_ZONE_SIZE (1 << 24)
+
+#define DMA_ZONE_IDX 0
+#define NORMAL_ZONE_IDX 1
+
 #define AREA_ORDER 11
+#define ZONES 2
 
 struct area
 {
