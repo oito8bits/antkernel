@@ -1,7 +1,7 @@
 #include <libk/stdlib.h>
 #include <libk/string.h>
 
-void itoa(char *source, s64 number)
+void utoa(char *source, u64 number)
 {
   char *string = source;
   while(number)
@@ -14,4 +14,3 @@ void itoa(char *source, s64 number)
 
   strrev(source);
 }
-

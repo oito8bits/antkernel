@@ -3,6 +3,6 @@
 
 #include <ant/types.h>
 
-void itoa(char *, s64);
+void utoa(char *, u64);
 
 #endif

@@ -34,10 +34,33 @@ static void print_hex(u64 number, _Bool uppercase)
   }
 }
 
-static void print_int(s32 number)
+static void print_uint(u64 number)
 {
-  char string[22] = {0};
-  itoa(string, number);
+  char string[21] = {0};
+
+  utoa(string, number);
+  fb_write(string);
+}
+
+static void print_int(s64 number, _Bool is_long)
+{
+  char string[20] = {0};
+  u64 number_long = number;
+
+  if(number < 0 && is_long)
+  {
+    fb_put_char('-');
+    number_long = -number;
+  }
+  
+  if((s32) number < 0 && !is_long)
+  {
+    fb_put_char('-');
+    number_long = -((s32) number);
+  }
+  
+  utoa(string, number_long);
+  
   fb_write(string);
 }
 
@@ -49,6 +72,7 @@ int kprintf(const char *format, ...)
   while(*format != '\0')
   {
     u64 long_arg;
+    _Bool is_long = 0;
 
     if(*format == '%')
     {
@@ -60,11 +84,15 @@ int kprintf(const char *format, ...)
       }
 
       if(*format != 'l')
-        long_arg = va_arg(arg, unsigned);
+      {
+        long_arg = va_arg(arg, u32);
+        is_long = 0;
+      }
       else
       {
-        long_arg = va_arg(arg, long unsigned);
+        long_arg = va_arg(arg, u64);
         format++;
+        is_long = 1;
       }
 
       switch(*format)
@@ -79,7 +107,10 @@ int kprintf(const char *format, ...)
           fb_write(va_arg(arg, void *));
           break;
         case 'i':
-          print_int(long_arg);
+          print_int(long_arg, is_long);
+          break;
+        case 'u':
+          print_uint(long_arg);
           break;
         case 'X':
           print_hex(long_arg, 1);
