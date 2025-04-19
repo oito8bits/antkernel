@@ -3,7 +3,6 @@
 
 #include <ant/types.h>
 #include <ant/boot.h>
-#include "cr4.h"
 
 #define PAGE_SIZE 4096
 

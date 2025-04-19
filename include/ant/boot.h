@@ -61,6 +61,8 @@ struct boot_info
 {
   struct memory_map map;    
   struct gop_video_mode mode;
+  u64 kernel_entry;
+  u64 kernel_size;
 };
 
 void boot_init(struct boot_info *);

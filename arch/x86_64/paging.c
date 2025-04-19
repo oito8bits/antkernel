@@ -1,5 +1,5 @@
 #include <ant/paging.h>
-#include "table_entry.h"
+#include <table_entry.h>
 
 extern virt_addr_t virtual_base; 
 
