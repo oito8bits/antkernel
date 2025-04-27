@@ -31,3 +31,13 @@ void *memcpy(void *dest, const void *src, u64 n)
 
   return dest;
 }
+
+void *memset(void *buff, u64 c, u64 n)
+{
+  u8 *p = buff;
+
+  while(n--)
+    *p++ = c;
+
+  return buff;
+}
