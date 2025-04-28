@@ -1,12 +1,10 @@
-#ifndef _INCLUDE_PAGING_
-#define _INCLUDE_PAGING_
+#ifndef _INCLUDE_TABLE_ENTRY_
+#define _INCLUDE_TABLE_ENTRY_
 
 #include <ant/types.h>
 #include <ant/boot.h>
 
 #define PAGE_SIZE 4096
-
-#define ALIGNUP(value, align) ((value) + ((align) - 1) & ~((align) - 1))
 
 struct pde
 {
