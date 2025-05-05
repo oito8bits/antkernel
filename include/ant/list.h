@@ -6,32 +6,32 @@ struct list_head
   struct list_head *prev, *next;
 };
 
-static inline void list_head_init(struct list_head *list)
+static inline void list_head_init(struct list_head *head)
 {
-  list->next = list;
-  list->prev = list;
+  head->next = head;
+  head->prev = head;
 }
 
-static inline void list_add(struct list_head *new, struct list_head *list)
+static inline void list_add(struct list_head *new, struct list_head *head)
 {
-  new->next = list->next;
-  new->prev = list;
-  list->next->prev = new;
-  list->next = new;
+  new->next = head->next;
+  new->prev = head;
+  head->next->prev = new;
+  head->next = new;
 }
 
-static inline void list_del(struct list_head *entry)
+static inline void list_del(struct list_head *node)
 {
-  entry->next->prev = entry->prev;
-  entry->prev->next = entry->next;
+  node->next->prev = node->prev;
+  node->prev->next = node->next;
 }
 
-static inline int list_is_head(const struct list_head *list, const struct list_head *head)
+static inline int list_is_head(struct list_head *list, struct list_head *head)
 {
   return list == head;
 }
 
-static inline int list_empty(const struct list_head *head)
+static inline int list_empty(struct list_head *head)
 {
   return head->next == head;
 }
