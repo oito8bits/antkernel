@@ -1,6 +1,8 @@
 #ifndef _INCLUDE_LIST_
 #define _INCLUDE_LIST_
 
+#include <libk/kprintf.h>
+
 struct list_head
 {
   struct list_head *prev, *next;
