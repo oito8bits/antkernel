@@ -4,6 +4,7 @@
 #include <table_entry.h>
 #include <libk/kprintf.h>
 #include <libk/string.h>
+#include <libk/stddef.h>
 #include <mm/early_heap.h>
 #include <mm/addr.h>
 
@@ -52,19 +53,9 @@ void show_buddies(void)
   }
 }
 
-struct page *pmm_alloc_order(u32 order)
+static struct page *split_buddy(u32 order)
 {
-  struct page *block;
-  struct list_head *node = 0;
   struct page *page;
-  
-  if(!list_empty(&free_buddies[order].head))
-  {
-    page = (struct page *) free_buddies[order].head.next;
-    list_del(&page->head); 
-    goto out;
-  }
-
   size_t i;
   for(i = max_order; order < i; i--)
   {
@@ -78,7 +69,19 @@ struct page *pmm_alloc_order(u32 order)
     }
   }
 
-out:
+  return page;
+}
+
+struct page *pmm_alloc_order(u32 order)
+{
+  struct page *page = NULL;
+  
+  page = (struct page *) free_buddies[order].head.next;
+  if(list_is_head(&page->head, &free_buddies[order].head))
+    page = split_buddy(order);
+
+  list_del(&page->head); 
+  
   return page;
 }
 
