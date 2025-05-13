@@ -78,14 +78,17 @@ struct page *pmm_alloc_order(u32 order)
   
   page = (struct page *) free_buddies[order].head.next;
   if(list_is_head(&page->head, &free_buddies[order].head))
+  {
     page = split_buddy(order);
+    list_del(&page->head); 
+    page->head.next = NULL;
+    page->head.prev = NULL;
+  }
 
-  list_del(&page->head); 
-  
   return page;
 }
 
 void pmm_free_order(struct page *)
 {
-
+  
 }
