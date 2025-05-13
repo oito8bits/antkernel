@@ -74,12 +74,14 @@ static struct page *split_buddy(u32 order)
 
 struct page *pmm_alloc_order(u32 order)
 {
-  struct page *page = NULL;
+  struct page *page;
   
   page = (struct page *) free_buddies[order].head.next;
   if(list_is_head(&page->head, &free_buddies[order].head))
-  {
     page = split_buddy(order);
+
+  if(page != NULL)
+  {
     list_del(&page->head); 
     page->head.next = NULL;
     page->head.prev = NULL;
