@@ -55,7 +55,7 @@ void show_buddies(void)
 
 static struct page *split_buddy(u32 order)
 {
-  struct page *page;
+  struct page *page = NULL;
   size_t i;
   for(i = max_order; order < i; i--)
   {
