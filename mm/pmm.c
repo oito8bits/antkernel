@@ -34,9 +34,16 @@ void pmm_init(struct boot_info *boot_info)
   list_add(&page_area->head, &free_buddies[max_order].head);
 }
 
+static u32 get_page_idx(struct page *page)
+{
+  return page - page_area;
+}
+
 static struct page *get_buddy(struct page *page, u32 order)
 {
-  return (struct page *) page + (1 << order);
+  u32 idx = get_page_idx(page);
+  idx ^= 1 << order;
+  return &page_area[idx];
 }
 
 void show_buddies(void)
@@ -65,7 +72,7 @@ static struct page *split_buddy(u32 order)
       page = (struct page *) free_buddies[i].head.next;
       list_del(&page->head);
       list_add(&page->head, &free_buddies[i - 1].head);
-      list_add((struct list_head *) get_buddy(page, i), &page->head);
+      list_add((struct list_head *) get_buddy(page, i - 1), &page->head);
     }
   }
 
