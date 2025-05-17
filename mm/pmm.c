@@ -31,6 +31,7 @@ void pmm_init(struct boot_info *boot_info)
   for(i = 0; i <= max_order; i++)
     list_head_init(&free_buddies[i].head);
 
+  page_area->order = max_order;
   list_add(&page_area->head, &free_buddies[max_order].head);
 }
 
@@ -39,10 +40,10 @@ static u32 get_page_idx(struct page *page)
   return page - page_area;
 }
 
-static struct page *get_buddy(struct page *page, u32 order)
+static struct page *get_buddy(struct page *page)
 {
   u32 idx = get_page_idx(page);
-  idx ^= 1 << order;
+  idx ^= 1 << page->order;
   return &page_area[idx];
 }
 
@@ -55,14 +56,14 @@ void show_buddies(void)
     list_for_each(node, &free_buddies[i].head)
     {
       struct page *page = (struct page *) node;
-      kprintf("Node addr: 0x%lx, order: %li\n", page, i);
+      kprintf("Node addr: 0x%lx, order: %li, buddy: 0x%lx\n", page, i, get_buddy(page));
     }
   }
 }
 
 static struct page *split_buddy(u32 order)
 {
-  struct page *page = NULL;
+  struct page *page = NULL, *buddy;
   size_t i;
   for(i = max_order; order < i; i--)
   {
@@ -72,7 +73,10 @@ static struct page *split_buddy(u32 order)
       page = (struct page *) free_buddies[i].head.next;
       list_del(&page->head);
       list_add(&page->head, &free_buddies[i - 1].head);
-      list_add((struct list_head *) get_buddy(page, i - 1), &page->head);
+      page->order--;
+      buddy = get_buddy(page);
+      buddy->order = page->order;
+      list_add(&buddy->head, &page->head);
     }
   }
 
@@ -97,7 +101,24 @@ struct page *pmm_alloc_order(u32 order)
   return page;
 }
 
-void pmm_free_order(struct page *)
+void pmm_free_order(struct page *page)
 {
-  
+  struct page *buddy;
+  kprintf("max_order: %u\n", max_order);
+  while(page->order < max_order)
+  {
+    buddy = get_buddy(page);
+
+    if(buddy->head.next == NULL &&
+       buddy->head.prev == NULL ||
+       page->order != buddy->order)
+      break;
+    
+    list_del(&buddy->head);
+    if(buddy < page)
+      page = buddy;
+    page->order++;
+  }
+
+  list_add(&page->head, &free_buddies[page->order].head);
 }
