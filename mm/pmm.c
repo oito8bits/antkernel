@@ -14,27 +14,6 @@ u64 max_order;
 
 struct page *free_buddies;
 
-void pmm_init(struct boot_info *boot_info)
-{
-  pages = map_get_memory_pages(&boot_info->map);
-  
-  page_area = addr_phys_to_virt((void *) boot_info->kernel_entry) + boot_info->kernel_size;
-  memset(page_area, 0, pages * sizeof(struct page));
-
-  size_t i;
-  for(i = 0; 1 << i < pages; i++);
-  max_order = i;
-
-  free_buddies = early_malloc((max_order + 1) * sizeof(struct page));
-  memset(free_buddies, 0, max_order * sizeof(struct page));
-  
-  for(i = 0; i <= max_order; i++)
-    list_head_init(&free_buddies[i].head);
-
-  page_area->order = max_order;
-  list_add(&page_area->head, &free_buddies[max_order].head);
-}
-
 static u32 get_page_idx(struct page *page)
 {
   return page - page_area;
@@ -121,4 +100,25 @@ void pmm_free_order(struct page *page)
   }
 
   list_add(&page->head, &free_buddies[page->order].head);
+}
+
+void pmm_init(struct boot_info *boot_info)
+{
+  pages = map_get_memory_pages(&boot_info->map);
+
+  page_area = addr_phys_to_virt((void *) boot_info->kernel_entry) + boot_info->kernel_size;
+  memset(page_area, 0, pages * sizeof(struct page));
+
+  size_t i;
+  for(i = 0; 1 << i < pages; i++);
+  max_order = i;
+
+  free_buddies = early_malloc((max_order + 1) * sizeof(struct page));
+  memset(free_buddies, 0, max_order * sizeof(struct page));
+
+  for(i = 0; i <= max_order; i++)
+    list_head_init(&free_buddies[i].head);
+
+  page_area->order = max_order;
+  list_add(&page_area->head, &free_buddies[max_order].head);
 }
