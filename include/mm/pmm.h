@@ -5,8 +5,6 @@
 #include <ant/types.h>
 #include <ant/list.h>
 
-#define MIN_ORDER 11
-
 struct page
 {
   struct list_head head;
