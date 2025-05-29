@@ -18,4 +18,9 @@ typedef u64 virt_addr_t;
 
 typedef u64 size_t;
 
+typedef _Bool bool;
+
+#define true 1
+#define false 0
+
 #endif
