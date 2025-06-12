@@ -42,9 +42,9 @@ s64 pmm_alloc_idx(size_t idx)
   return -1;
 }
 
-void pmm_free_page(s64 page)
+void pmm_free_page(s64 idx)
 {
-  bitset_reset(pages, page);
+  bitset_reset(pages, idx);
 }
 
 void pmm_init(struct boot_info *boot_info)
