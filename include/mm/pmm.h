@@ -3,17 +3,9 @@
 
 #include <ant/boot.h>
 #include <ant/types.h>
-#include <ant/list.h>
 
-struct page
-{
-  struct list_head head;
-  u32 order;
-};
-
+s64 pmm_alloc_page(void);
+void pmm_free_page(s64 page);
 void pmm_init(struct boot_info *);
-struct page *pmm_alloc_order(u32);
-void pmm_free_order(struct page *);
-void show_buddies(void);
 
 #endif
