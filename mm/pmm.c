@@ -31,6 +31,17 @@ s64 pmm_alloc_page(void)
   return -1;
 }
 
+s64 pmm_alloc_idx(size_t idx)
+{
+  if(!bitset_is_set(pages, idx))
+  {
+    bitset_set(pages, idx);
+    return idx; 
+  }
+
+  return -1;
+}
+
 void pmm_free_page(s64 page)
 {
   bitset_reset(pages, page);
