@@ -1,6 +1,6 @@
-#include <mm/map.h>
+#include <mm/memmap.h>
 
-size_t map_get_memory_pages(struct memory_map *map)
+size_t memmap_get_memory_pages(struct memory_map *map)
 {
   efi_memory_descriptor *descriptor = map->memory_descriptor;
   size_t i;

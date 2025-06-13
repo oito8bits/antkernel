@@ -1,6 +1,6 @@
 #include <mm/pmm.h>
 
-#include <mm/map.h>
+#include <mm/memmap.h>
 #include <libk/string.h>
 #include <libk/stddef.h>
 #include <mm/early_heap.h>
@@ -49,7 +49,7 @@ void pmm_free_page(s64 idx)
 
 void pmm_init(struct boot_info *boot_info)
 {
-  size_t npages = map_get_memory_pages(&boot_info->map);
+  size_t npages = memmap_get_memory_pages(&boot_info->map);
   
   nentries = npages / 64;
   pages = early_malloc(nentries * 8);
