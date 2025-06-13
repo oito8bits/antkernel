@@ -10,7 +10,6 @@ enum memory_type
   runtime_services_code,
   runtime_services_data,
   available_memory,
-  unusable_memory,
   acpi_memory,
   memory_mapped_io,
   memory_mapped_io_port_space,
@@ -18,5 +17,6 @@ enum memory_type
 };
 
 size_t memmap_get_memory_pages(struct memory_map *);
+enum memory_type memmap_get_memory_type(efi_memory_type);
 
 #endif
