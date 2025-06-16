@@ -41,4 +41,9 @@ struct pte
   u32 xd: 1; 
 };
 
+u64 pg_get_l4_idx(virt_addr_t virt_addr);
+u64 pg_get_l3_idx(virt_addr_t virt_addr);
+u64 pg_get_l2_idx(virt_addr_t virt_addr);
+u64 pg_get_l1_idx(virt_addr_t virt_addr);
+
 #endif

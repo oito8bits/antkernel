@@ -13,7 +13,7 @@ _start:
   cli
   callq boot_init
   movq  $stack_end, %rsp
-  leaq  kernel_table_level_4(%rip), %rax
+  leaq  top_table_level(%rip), %rax
   movq  %rax, %cr3
   movq  $higher_half_kernel, %rax
   jmp   %rax
@@ -26,8 +26,9 @@ higher_half_kernel:
 
 .section .data
 
+.global top_table_level
 .align 4096
-kernel_table_level_4:
+top_table_level:
   .quad kernel_identity_table_level_3 - START_KERNEL + 0x3
   .fill 510, 8, 0
   .quad kernel_table_level_3 - START_KERNEL + 0x3
