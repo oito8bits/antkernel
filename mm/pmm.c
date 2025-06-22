@@ -5,7 +5,7 @@
 #include <libk/stddef.h>
 #include <mm/early_heap.h>
 #include <mm/bitset.h>
-#include <libk/kprintf.h>
+
 void *pmm_alloc_area(struct area *area)
 {
   size_t i, j;
