@@ -4,6 +4,6 @@
 #include <ant/types.h>
 #include <pg.h>
 
-void map(struct pde *, u64, u64, u64);
+void map(struct table_entry *, u64, u64, u64);
 
 #endif

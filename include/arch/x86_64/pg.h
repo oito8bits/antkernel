@@ -6,7 +6,7 @@
 
 #define PAGE_SIZE 4096
 
-struct pde
+struct table_entry
 {
   u32 p:1;
   u32 rw: 1;
@@ -23,7 +23,7 @@ struct pde
   u32 xd: 1; 
 };
 
-struct pte
+struct page_entry
 {
   u32 p:1;
   u32 rw: 1;

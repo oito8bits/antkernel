@@ -4,6 +4,6 @@
 #include <ant/boot.h>
 #include <pg.h>
 
-void vmm_init(struct boot_info *, struct pde *);
+void vmm_init(struct boot_info *, struct table_entry *);
 
 #endif
