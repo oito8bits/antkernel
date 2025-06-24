@@ -6,6 +6,11 @@
 #include <mm/early_heap.h>
 #include <mm/bitset.h>
 
+static size_t addr_to_idx(struct area *area, phys_addr_t addr)
+{
+  return (addr - area->start) / 4096;
+}
+
 void *pmm_alloc_area(struct area *area)
 {
   size_t i, j;
@@ -33,9 +38,21 @@ void *pmm_alloc_page(struct area *area)
   return pmm_alloc_area(area);
 }
 
-/*
-s64 pmm_alloc_idx(size_t idx)
+size_t alloc_addr(struct area *area, phys_addr_t addr)
 {
+  size_t idx = addr_to_idx(area, addr);
+  if(!bitset_is_set(area->pages, idx))
+  {
+    bitset_set(area->pages, idx);
+    return idx;
+  }
+
+  return -1;
+}
+
+void pmm_alloc_range(struct area *area, phys_addr_t addr, size_t npages)
+{
+  /*
   if(!bitset_is_set(pages, idx))
   {
     bitset_set(pages, idx);
@@ -43,11 +60,12 @@ s64 pmm_alloc_idx(size_t idx)
   }
 
   return -1;
+  */
 }
-*/
+
 void pmm_free_page(struct area *area, void *addr)
 {
-  bitset_reset(area->pages, (uintptr_t) (addr - area->start) / 4096);
+  bitset_reset(area->pages, addr_to_idx(area, (phys_addr_t) addr));
 }
 
 void pmm_init(struct boot_info *boot_info, struct pmm_area *parea)
