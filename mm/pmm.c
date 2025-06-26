@@ -52,15 +52,9 @@ size_t alloc_addr(struct area *area, phys_addr_t addr)
 
 void pmm_alloc_range(struct area *area, phys_addr_t addr, size_t npages)
 {
-  /*
-  if(!bitset_is_set(pages, idx))
-  {
-    bitset_set(pages, idx);
-    return idx; 
-  }
-
-  return -1;
-  */
+  size_t i, idx;
+  for(i = 0; i < npages; i++)
+    alloc_addr(area, addr + i * 4096);
 }
 
 void pmm_free_page(struct area *area, void *addr)
@@ -78,4 +72,5 @@ void pmm_init(struct boot_info *boot_info, struct pmm_area *parea)
   kernel_area->start = boot_info->kernel_entry;
   kernel_area->pages = early_malloc(kernel_area->npages * 8);
   memset(kernel_area->pages, 0, kernel_area->nentries * 8);
+  pmm_alloc_range(kernel_area, 0x1001000, 4);
 }
