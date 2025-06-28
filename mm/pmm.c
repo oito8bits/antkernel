@@ -78,5 +78,4 @@ void pmm_init(struct boot_info *boot_info, struct pmm_area *parea)
   pmm_init_area(parea->kernel_area, 
                 boot_info->kernel_entry,
                 boot_info->kernel_size / 4096);
-  pmm_alloc_range(parea->kernel_area, boot_info->kernel_entry, 5);
 }
