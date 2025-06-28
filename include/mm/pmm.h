@@ -16,13 +16,14 @@ struct area
 
 struct pmm_area
 {
-  struct area available_area;
-  struct area kernel_area;
+  struct area *available_area;
+  struct area *kernel_area;
 };
 
+void pmm_init_area(struct area *, phys_addr_t, size_t);
 void *pmm_alloc_area(struct area *);
 void *pmm_alloc_page(struct area *);
-//s64 pmm_alloc_idx(size_t);
+void pmm_alloc_range(struct area *, phys_addr_t, size_t);
 void pmm_free_page(struct area *, void *);
 void pmm_init(struct boot_info *, struct pmm_area *);
 
