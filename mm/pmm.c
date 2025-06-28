@@ -11,6 +11,15 @@ static size_t addr_to_idx(struct area *area, phys_addr_t addr)
   return (addr - area->start) / 4096;
 }
 
+void pmm_init_area(struct area *area, phys_addr_t start, size_t npages)
+{
+  area->npages = npages;
+  area->nentries = npages / 64;
+  area->start = start;
+  area->pages = early_malloc(npages * 8);
+  memset(area->pages, 0, area->nentries * 8);
+}
+
 void *pmm_alloc_area(struct area *area)
 {
   size_t i, j;
@@ -65,11 +74,9 @@ void pmm_free_page(struct area *area, void *addr)
 void pmm_init(struct boot_info *boot_info, struct pmm_area *parea)
 {
   //size_t npages = memmap_get_memory_pages(&boot_info->map);
-  
-  struct area *kernel_area = early_malloc(sizeof(struct area));
-  kernel_area->npages = boot_info->kernel_size;
-  kernel_area->nentries = kernel_area->npages / (4096 * 64);
-  kernel_area->start = boot_info->kernel_entry;
-  kernel_area->pages = early_malloc(kernel_area->npages * 8);
-  memset(kernel_area->pages, 0, kernel_area->nentries * 8);
+  parea->kernel_area = early_malloc(sizeof(struct area));
+  pmm_init_area(parea->kernel_area, 
+                boot_info->kernel_entry,
+                boot_info->kernel_size / 4096);
+  pmm_alloc_range(parea->kernel_area, boot_info->kernel_entry, 5);
 }
