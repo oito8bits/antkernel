@@ -5,10 +5,11 @@
 #include <libk/stddef.h>
 #include <mm/early_heap.h>
 #include <mm/bitset.h>
+#include <arch/x86_64/pg.h>
 
 static size_t addr_to_idx(struct area *area, phys_addr_t addr)
 {
-  return (addr - area->start) / 4096;
+  return (addr - area->start) / PAGE_SIZE;
 }
 
 void pmm_init_area(struct area *area, phys_addr_t start, size_t npages)
@@ -34,7 +35,7 @@ void *pmm_alloc_area(struct area *area)
       if(!bitset_is_set(area->pages, pos))
       {
         bitset_set(area->pages, pos);
-        return (void *) area->start + pos * 4096;
+        return (void *) area->start + pos * PAGE_SIZE;
       }
     }
   }
@@ -63,7 +64,7 @@ void pmm_alloc_range(struct area *area, phys_addr_t addr, size_t npages)
 {
   size_t i, idx;
   for(i = 0; i < npages; i++)
-    alloc_addr(area, addr + i * 4096);
+    alloc_addr(area, addr + i * PAGE_SIZE);
 }
 
 void pmm_free_page(struct area *area, void *addr)
@@ -77,5 +78,5 @@ void pmm_init(struct boot_info *boot_info, struct pmm_area *parea)
   parea->kernel_area = early_malloc(sizeof(struct area));
   pmm_init_area(parea->kernel_area, 
                 boot_info->kernel_entry,
-                boot_info->kernel_size / 4096);
+                boot_info->kernel_size / PAGE_SIZE);
 }
