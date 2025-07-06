@@ -16,8 +16,9 @@ struct area
 
 struct pmm_area
 {
-  struct area *available_area;
-  struct area *kernel_area;
+  struct area available_area;
+  struct area kernel_area;
+  struct area table_area;
 };
 
 void pmm_init_area(struct area *, phys_addr_t, size_t);

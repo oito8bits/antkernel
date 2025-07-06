@@ -6,6 +6,7 @@
 #include <mm/early_heap.h>
 #include <mm/bitset.h>
 #include <arch/x86_64/pg.h>
+#include <ant/align.h>
 
 static size_t addr_to_idx(struct area *area, phys_addr_t addr)
 {
@@ -75,8 +76,15 @@ void pmm_free_page(struct area *area, void *addr)
 void pmm_init(struct boot_info *boot_info, struct pmm_area *parea)
 {
   //size_t npages = memmap_get_memory_pages(&boot_info->map);
-  parea->kernel_area = early_malloc(sizeof(struct area));
-  pmm_init_area(parea->kernel_area, 
+  pmm_init_area(&parea->kernel_area, 
                 boot_info->kernel_entry,
                 boot_info->kernel_size / PAGE_SIZE);
+
+  phys_addr_t table_area_size = boot_info->kernel_entry + boot_info->kernel_size;
+  if(IS_ALIGN(table_area_size, PAGE_SIZE))
+    table_area_size = ALIGNUP(table_area_size, PAGE_SIZE);
+
+  pmm_init_area(&parea->table_area,
+                table_area_size,
+                20 * (1 << 20) / PAGE_SIZE); /* 20 MiB */
 }
