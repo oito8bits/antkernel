@@ -3,7 +3,7 @@
 
 #include <ant/boot.h>
 #include <ant/types.h>
-#include <ant/mm.h>
+#include <mm/mm.h>
 
 #define FB_WHITE_COLOR 0xffffffff
 #define FB_BLACK_COLOR 0x00000000
