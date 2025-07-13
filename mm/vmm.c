@@ -22,4 +22,5 @@ void vmm_get_pages(size_t npages)
 
 void vmm_init(struct boot_info *boot_info, struct table_entry *table)
 {
+  
 }

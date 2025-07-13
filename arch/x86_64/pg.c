@@ -43,3 +43,23 @@ phys_addr_t pg_virt_to_phys(virt_addr_t addr)
 {
   return addr - virtual_base;
 }
+
+virt_addr_t pg_phys_to_virt(phys_addr_t addr)
+{
+  return virtual_base + addr;
+}
+
+phys_addr_t pg_get_table_entry_pa(struct table_entry *entry)
+{
+  return entry->phys_addr << 12;
+}
+
+void pg_set_table_entry_pa(struct table_entry *entry, phys_addr_t addr)
+{
+  entry->phys_addr = addr >> 12;
+}
+
+void pg_set_page_entry_pa(struct page_entry *entry, phys_addr_t addr)
+{
+  entry->phys_addr = addr >> 12;
+}
