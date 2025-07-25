@@ -43,7 +43,7 @@ static void set_page_entry(struct page_entry *table, virt_addr_t virt_addr, phys
   table[idx] = entry;
 }
 
-void map(struct table_entry *table, u64 phys_addr, u64 virt_addr, u64 attr)
+void map(struct table_entry *table, phys_addr_t phys_addr, virt_addr_t virt_addr, u64 attr)
 {
   struct table_entry *l4, *l3, *l2;
   struct page_entry *l1;
