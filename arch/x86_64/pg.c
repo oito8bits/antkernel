@@ -63,3 +63,17 @@ void pg_set_page_entry_pa(struct page_entry *entry, phys_addr_t addr)
 {
   entry->phys_addr = addr >> 12;
 }
+
+void pg_set_page_entry(struct page_entry *entry, phys_addr_t addr, u64 attr)
+{
+  entry->phys_addr = addr >> 12;
+  u64 *entry_p = (u64 *) entry;
+  *entry_p |=  attr;
+}
+
+void pg_set_table_entry(struct table_entry *entry, phys_addr_t addr, u64 attr)
+{
+  entry->phys_addr = addr >> 12;
+  u64 *entry_p = (u64 *) entry;
+  *entry_p |=  attr;
+}

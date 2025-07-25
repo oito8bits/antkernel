@@ -2,7 +2,6 @@
 #include <mm/pmm.h>
 #include <mm/vmm.h>
 #include <ant/boot.h>
-
 extern u64 top_table_level;
 
 int kmain(void)

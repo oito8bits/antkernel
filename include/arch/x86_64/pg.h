@@ -58,5 +58,7 @@ virt_addr_t pg_phys_to_virt(phys_addr_t addr);
 phys_addr_t pg_get_table_entry_pa(struct table_entry *);
 void pg_set_table_entry_pa(struct table_entry *entry, phys_addr_t addr);
 void pg_set_page_entry_pa(struct page_entry *entry, phys_addr_t addr);
+void pg_set_page_entry(struct page_entry *entry, phys_addr_t addr, u64 attr);
+void pg_set_table_entry(struct table_entry *entry, phys_addr_t addr, u64 attr);
 
 #endif
