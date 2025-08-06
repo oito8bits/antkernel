@@ -4,6 +4,8 @@
 #include <ant/types.h>
 #include <ant/boot.h>
 
+#define VIRTUAL_BASE 0xFFFFFFFF80000000
+
 #define PAGE_SIZE 4096
 
 #define BIT_PRESENT       (1ULL << 0)
