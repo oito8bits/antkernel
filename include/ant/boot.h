@@ -57,12 +57,20 @@ struct memory_map
   u64 descriptor_size;
 };
 
+struct smbios_header
+{
+  u8 type;
+  u8 length;
+  u16 handle;
+};
+
 struct boot_info
 {
   struct memory_map map;    
   struct gop_video_mode mode;
   u64 kernel_entry;
   u64 kernel_size;
+  struct smbios_header *smbios_header;
 };
 
 void boot_init(struct boot_info *);
