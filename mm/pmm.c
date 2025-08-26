@@ -18,8 +18,9 @@ static size_t addr_to_idx(phys_addr_t addr)
   return addr / PAGE_SIZE;
 }
 
-static void alloc_reserved_pages(struct memory_map *map)
+static void alloc_reserved_pages(struct boot_info *boot_info)
 {
+  struct memory_map *map = &boot_info->map;
   efi_memory_descriptor *descriptor = map->memory_descriptor;
   size_t i, j;
   for(i = 0; i < map->memory_map_size / map->descriptor_size; i++)
@@ -33,6 +34,19 @@ static void alloc_reserved_pages(struct memory_map *map)
     out:
     descriptor = (void *) descriptor + map->descriptor_size;
   }
+
+  struct gop_video_mode *mode = &boot_info->mode; 
+  phys_addr_t base = (phys_addr_t) mode->frame_buffer_base;
+  if(base + mode->frame_buffer_size > npages * PAGE_SIZE)
+    return;
+
+  #include <libk/kprintf.h>
+  kprintf("base + mode->frame_buffer_size: %#lx"
+          ", npages * PAGE_SIZE: %#lx\n", base + mode->frame_buffer_size,
+                                 npages);
+  kprintf("Allocing frame buffer...\n");
+  for(i = 0; i < mode->frame_buffer_size; i += 4096)
+    pmm_alloc_addr(base + i);
 }
 
 void pmm_init_area(struct area *area, phys_addr_t start, size_t area_npages)
@@ -94,7 +108,7 @@ void pmm_init(struct boot_info *boot_info, struct pmm_area *parea)
   pages = early_malloc(npages * 8);
   memset(pages, 0, nentries * 8);
   
-  alloc_reserved_pages(&boot_info->map);
+  alloc_reserved_pages(boot_info);
   
   pmm_init_area(&parea->kernel_area, 
                 boot_info->kernel_entry,

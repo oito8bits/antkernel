@@ -1,17 +1,19 @@
 #include <mm/memmap.h>
+#include <pg.h>
 
 size_t memmap_get_memory_pages(struct memory_map *map)
 {
   efi_memory_descriptor *descriptor = map->memory_descriptor;
-  size_t i;
-  size_t pages = 0;
-  for(i = 0; i < map->memory_map_size / map->descriptor_size; i++)
+  size_t i = map->memory_map_size / map->descriptor_size;
+  u64 physical_start;
+  while(i--)
   {
+    if(memmap_get_memory_type(descriptor->type) == available_memory)
+      physical_start = descriptor->physical_start;
     descriptor = (void *) descriptor + map->descriptor_size;
-    pages += descriptor->number_of_pages;
   }
-
-  return pages;
+  
+  return physical_start / PAGE_SIZE + descriptor->number_of_pages;
 }
 
 enum memory_type memmap_get_memory_type(efi_memory_type type)
