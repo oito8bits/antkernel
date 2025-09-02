@@ -28,6 +28,13 @@ SECTIONS
     *(.rodata)
     _end_rodata = .;
   }
+  
+  .stack ALIGN(0x1000): AT(ADDR(.stack) - virtual_base)
+  {
+    _start_stack = .;
+    . += 16 * 1024;
+    _end_stack = .;
+  }
 
   .bss ALIGN(0x1000): AT(ADDR(.bss) - virtual_base)
   {

@@ -2,6 +2,7 @@
 
 .equ START_KERNEL, 0xFFFFFFFF80000000
 
+.extern _stack_end
 .extern start64
 .extern kmain
 .extern boot_info
@@ -12,7 +13,7 @@
 _start:
   cli
   callq boot_init
-  movq  $stack_end, %rsp
+  movq  $_end_stack, %rsp
   leaq  top_table_level(%rip), %rax
   movq  %rax, %cr3
   movq  $higher_half_kernel, %rax
@@ -52,6 +53,3 @@ kernel_table_level_2:
     .quad i | 0x83
     .set i, i + (1 << 21)
   .endr
-
-.comm stack_start, 16384
-stack_end:
