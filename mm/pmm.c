@@ -7,7 +7,6 @@
 #include <mm/bitset.h>
 #include <arch/x86_64/pg.h>
 #include <ant/align.h>
-#include <libk/kprintf.h>
 
 static u64 *pages;
 static size_t npages;
