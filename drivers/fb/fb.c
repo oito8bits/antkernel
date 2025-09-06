@@ -1,12 +1,14 @@
 #include <fb/fb.h>
 #include "font.h"
-#include <pg.h>
+#include <arch/map.h>
 
 static u32 *frame_buffer_base;
 static u32 width, height;
 static u16 cursor_x, cursor_y;
 static u32 background_color;
 static u32 foreground_color;
+
+extern struct table_entry kernel_top_table;
 
 static void plot_pixel(u16 x, u16 y, u32 color)
 {
@@ -52,10 +54,13 @@ static void draw_char(u8 c)
   }
 }
 
-static void map_frame_buffer(uintptr_t phys_base, void *pte)                                                                          
-{   
-  u64 idx = pg_get_l2_idx((virt_addr_t) frame_buffer_base); 
-  *((unsigned long *) pte + idx) = (uintptr_t) phys_base + 0x83;                                                                      
+static void map_frame_buffer(uintptr_t phys_base)
+{
+  map_pages(&kernel_top_table,
+            phys_base,
+            FB_VIRTUAL_BASE_ADDR,
+            BIT_PRESENT | BIT_WRITE,
+            width * height * 4 / PAGE_SIZE);
 }
 
 void fb_scrollup(void)
@@ -109,7 +114,7 @@ void fb_write(char *s)
   while(*s) fb_put_char(*s++);
 }
 
-void fb_init(struct boot_info *info, void *pte)
+void fb_init(struct boot_info *info)
 {
   frame_buffer_base = (u32 *) FB_VIRTUAL_BASE_ADDR;
   width = info->mode.horizontal_resolution;
@@ -118,5 +123,5 @@ void fb_init(struct boot_info *info, void *pte)
   cursor_y = 0;
   fb_set_background_color(FB_BLACK_COLOR);
   fb_set_foreground_color(FB_WHITE_COLOR);
-  map_frame_buffer((uintptr_t) info->mode.frame_buffer_base, pte);
+  map_frame_buffer((uintptr_t) info->mode.frame_buffer_base);
 }

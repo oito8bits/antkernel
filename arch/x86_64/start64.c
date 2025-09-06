@@ -14,6 +14,5 @@ int start64(void)
   early_heap_init();
   gdt_load();
   idt_load();
-  fb_init(boot_info, (void *) &kernel_table_level_2);
   return 0;
 }

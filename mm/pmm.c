@@ -29,7 +29,11 @@ static void alloc_reserved_pages(struct boot_info *boot_info)
   {
     if(memmap_get_memory_type(descriptor->type) == available_memory)
       goto out;
-     
+
+    if((descriptor->physical_start / PAGE_SIZE + descriptor->number_of_pages) >=
+        npages)
+      break;
+
     for(j = 0; j < descriptor->number_of_pages; j++)
       pmm_alloc_addr(descriptor->physical_start + j * PAGE_SIZE);
 
@@ -84,7 +88,6 @@ void *pmm_alloc_available_page(struct area *area)
   {
     if((addr = pmm_alloc_page(area)) != NULL)
     {
-      kprintf("addr: %i\n", addr);
       break;
     }
   }
@@ -129,7 +132,7 @@ void pmm_init(struct boot_info *boot_info, struct pmm_area *parea)
   if(IS_ALIGN(table_area_pa, PAGE_SIZE))
     table_area_pa = ALIGNUP(table_area_pa, PAGE_SIZE); 
 
-  size_t table_area_size = 20 * (1 << 2);
+  size_t table_area_size = 2 * (1 << 20);
   pmm_init_area(&parea->table_area,
                 table_area_pa,
                 table_area_size / PAGE_SIZE); /* 20 MiB */

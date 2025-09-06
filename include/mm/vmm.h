@@ -3,7 +3,8 @@
 
 #include <ant/boot.h>
 #include <pg.h>
+#include <mm/pmm.h>
 
-void vmm_init(struct boot_info *, struct table_entry *);
+void vmm_init(struct boot_info *, struct pmm_area *);
 
 #endif

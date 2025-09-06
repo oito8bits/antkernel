@@ -32,7 +32,7 @@ static struct table_entry *get_table_virt_addr(struct table_entry *table, virt_a
   return (struct table_entry *) pg_phys_to_virt(table_phys_addr);
 }
 
-static struct table_entry *create_entry(struct table_entry *table, virt_addr_t virt_addr, u64 attr, size_t level)
+static struct table_entry *create_entry(struct table_entry *table, virt_addr_t virt_addr, size_t level)
 {
   struct table_entry *entry = get_table_entry(table, virt_addr, level);
   phys_addr_t table_pa = pg_get_table_entry_pa(entry);
@@ -40,7 +40,7 @@ static struct table_entry *create_entry(struct table_entry *table, virt_addr_t v
   {
     table_pa = (phys_addr_t) pmm_alloc_page(table_area);
     memset((void *) pg_phys_to_virt(table_pa), 0, PAGE_SIZE);
-    pg_set_table_entry(entry, table_pa, attr);
+    pg_set_table_entry(entry, table_pa, BIT_PRESENT | BIT_WRITE);
     table[get_idx(virt_addr, level)] = *entry;
   }
   
@@ -59,12 +59,18 @@ void map(struct table_entry *table, phys_addr_t phys_addr, virt_addr_t virt_addr
 {
   struct table_entry *l4, *l3, *l2;
   struct page_entry *l1;
-
   l4 = table;
-  l3 = create_entry(l4, virt_addr, attr, 4);
-  l2 = create_entry(l3, virt_addr, attr, 3);
-  l1 = (struct page_entry *) create_entry(l2, virt_addr, attr, 2);
+  l3 = create_entry(l4, virt_addr, 4);
+  l2 = create_entry(l3, virt_addr, 3);
+  l1 = (struct page_entry *) create_entry(l2, virt_addr, 2);
   set_page_entry(l1, virt_addr, phys_addr, attr);
+}
+
+void map_pages(struct table_entry *table, phys_addr_t phys_addr, virt_addr_t virt_addr, u64 attr, u64 npages)
+{
+  size_t i;
+  for(i = 0; i < npages; i++)
+    map(table, phys_addr + i * PAGE_SIZE, virt_addr + i * PAGE_SIZE, attr);
 }
 
 bool is_unused_table(struct table_entry *table)
