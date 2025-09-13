@@ -6,7 +6,7 @@
 
 struct area *table_area;
 
-static size_t get_idx(virt_addr_t virt_addr, size_t level)
+static size_t get_idx(void *virt_addr, size_t level)
 {
   switch(level)
   {
@@ -19,12 +19,12 @@ static size_t get_idx(virt_addr_t virt_addr, size_t level)
   }
 }
 
-static struct table_entry *get_table_entry(struct table_entry *table, virt_addr_t virt_addr, size_t level)
+static struct table_entry *get_table_entry(struct table_entry *table, void *virt_addr, size_t level)
 {
   return &table[get_idx(virt_addr, level)];
 }
 
-static struct table_entry *get_table_virt_addr(struct table_entry *table, virt_addr_t virt_addr, size_t level)
+static struct table_entry *get_table_virt_addr(struct table_entry *table, void *virt_addr, size_t level)
 {
   struct table_entry *entry = get_table_entry(table, virt_addr, level);
   phys_addr_t table_phys_addr = pg_get_table_entry_pa(entry);
@@ -32,7 +32,7 @@ static struct table_entry *get_table_virt_addr(struct table_entry *table, virt_a
   return (struct table_entry *) pg_phys_to_virt(table_phys_addr);
 }
 
-static struct table_entry *create_entry(struct table_entry *table, virt_addr_t virt_addr, size_t level)
+static struct table_entry *create_entry(struct table_entry *table, void *virt_addr, size_t level)
 {
   struct table_entry *entry = get_table_entry(table, virt_addr, level);
   phys_addr_t table_pa = pg_get_table_entry_pa(entry);
@@ -47,7 +47,7 @@ static struct table_entry *create_entry(struct table_entry *table, virt_addr_t v
   return (struct table_entry *) pg_phys_to_virt(table_pa);
 }
 
-static void set_page_entry(struct page_entry *table, virt_addr_t virt_addr, phys_addr_t phys_addr, u64 attr)
+static void set_page_entry(struct page_entry *table, void *virt_addr, phys_addr_t phys_addr, u64 attr)
 {
   size_t idx = pg_get_l1_idx(virt_addr);
   struct page_entry entry = table[idx];
@@ -55,7 +55,7 @@ static void set_page_entry(struct page_entry *table, virt_addr_t virt_addr, phys
   table[idx] = entry;
 }
 
-void map(struct table_entry *table, phys_addr_t phys_addr, virt_addr_t virt_addr, u64 attr)
+void map(struct table_entry *table, phys_addr_t phys_addr, void *virt_addr, u64 attr)
 {
   struct table_entry *l4, *l3, *l2;
   struct page_entry *l1;
@@ -66,7 +66,7 @@ void map(struct table_entry *table, phys_addr_t phys_addr, virt_addr_t virt_addr
   set_page_entry(l1, virt_addr, phys_addr, attr);
 }
 
-void map_pages(struct table_entry *table, phys_addr_t phys_addr, virt_addr_t virt_addr, u64 attr, u64 npages)
+void map_pages(struct table_entry *table, phys_addr_t phys_addr, void *virt_addr, u64 attr, u64 npages)
 {
   size_t i;
   for(i = 0; i < npages; i++)
@@ -85,7 +85,7 @@ bool is_unused_table(struct table_entry *table)
   return true;
 }
 
-void unmap(struct table_entry *table, virt_addr_t virt_addr)
+void unmap(struct table_entry *table, void *virt_addr)
 {
   struct table_entry *l4, *l3, *l2;
   struct page_entry *l1;
@@ -100,19 +100,19 @@ void unmap(struct table_entry *table, virt_addr_t virt_addr)
 
   size_t idx = get_idx(virt_addr, 2);
   l2[idx].p = 0;
-  pmm_free_page(table_area, (void *) pg_virt_to_phys((virt_addr_t) l1));
+  pmm_free_page(table_area, pg_virt_to_phys(l1));
   if(!is_unused_table(l2))
     return;
   
   idx = get_idx(virt_addr, 3);
   l3[idx].p = 0;
-  pmm_free_page(table_area, (void *) pg_virt_to_phys((virt_addr_t) l2));
+  pmm_free_page(table_area, pg_virt_to_phys(l2));
   if(!is_unused_table(l3))
     return;
 
   idx = get_idx(virt_addr, 4);
   l3[idx].p = 0;
-  pmm_free_page(table_area, (void *) pg_virt_to_phys((virt_addr_t) l3));
+  pmm_free_page(table_area, pg_virt_to_phys(l3));
 }
 
 void map_init(struct area *area)

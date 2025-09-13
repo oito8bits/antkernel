@@ -11,6 +11,7 @@
 static u64 *pages;
 static size_t npages;
 static size_t nentries;
+static struct area *available_area;
 
 static size_t addr_to_idx(phys_addr_t addr)
 {
@@ -58,7 +59,7 @@ void pmm_init_area(struct area *area, phys_addr_t start, size_t area_npages)
   area->pages = pages + start / PAGE_SIZE / 64;
 }
 
-void *pmm_alloc_page(struct area *area)
+phys_addr_t pmm_alloc_page(struct area *area)
 {
   size_t i, j;
   for(i = 0; i < area->nentries; i++)
@@ -72,21 +73,21 @@ void *pmm_alloc_page(struct area *area)
       if(!bitset_is_set(area->pages, pos))
       {
         bitset_set(area->pages, pos);
-        return (void *) (area->start + pos * PAGE_SIZE);
+        return area->start + pos * PAGE_SIZE;
       }
     }
   }
 
-  return NULL;
+  return 0;
 }
 
-void *pmm_alloc_available_page(struct area *area)
+phys_addr_t pmm_alloc_avail_page(void)
 {
-  void *addr = NULL;
+  phys_addr_t addr = 0;
   size_t i;
   for(i = 0; i < AVAILABLE_AREAS; i++)
   {
-    if((addr = pmm_alloc_page(area)) != NULL)
+    if((addr = pmm_alloc_page(&available_area[i])) != 0)
     {
       break;
     }
@@ -107,16 +108,24 @@ s64 pmm_alloc_addr(phys_addr_t addr)
   return -1;
 }
 
-void pmm_free_page(struct area *area, void *addr)
+void pmm_free_page(struct area *area, phys_addr_t addr)
 {
-  bitset_reset(area->pages, addr_to_idx((phys_addr_t) addr));
+  bitset_reset(area->pages, addr_to_idx(addr));
 }
 
 void pmm_init(struct boot_info *boot_info, struct pmm_area *parea)
 {
   npages = memmap_get_memory_pages(&boot_info->map);
   nentries = npages / 64;
-  pages = early_malloc(npages * 8);
+  phys_addr_t pages_addr = boot_info->kernel_entry + boot_info->kernel_size;
+  if(IS_ALIGN(pages_addr, PAGE_SIZE))
+    pages_addr = ALIGNUP(pages_addr, PAGE_SIZE);
+
+  pages = pg_phys_to_virt(pages_addr);
+  pmm_init_area(&parea->bitmap_area,
+                pages_addr,
+                nentries * 8 / PAGE_SIZE);
+
   memset(pages, 0, nentries * 8);
   
   alloc_reserved_pages(boot_info);
@@ -128,7 +137,7 @@ void pmm_init(struct boot_info *boot_info, struct pmm_area *parea)
                 boot_info->kernel_entry,
                 boot_info->kernel_size / PAGE_SIZE);
 
-  phys_addr_t table_area_pa = boot_info->kernel_entry + boot_info->kernel_size;
+  phys_addr_t table_area_pa = pages_addr + nentries * 8;
   if(IS_ALIGN(table_area_pa, PAGE_SIZE))
     table_area_pa = ALIGNUP(table_area_pa, PAGE_SIZE); 
 
@@ -136,7 +145,7 @@ void pmm_init(struct boot_info *boot_info, struct pmm_area *parea)
   pmm_init_area(&parea->table_area,
                 table_area_pa,
                 table_area_size / PAGE_SIZE); /* 20 MiB */
-
+  
   phys_addr_t available_area_pa = table_area_pa + table_area_size;
   if(IS_ALIGN(available_area_pa, PAGE_SIZE))
     table_area_pa = ALIGNUP(available_area_pa, PAGE_SIZE);
@@ -144,4 +153,6 @@ void pmm_init(struct boot_info *boot_info, struct pmm_area *parea)
   pmm_init_area(&parea->available_area[1],
                 available_area_pa,
                 npages - available_area_pa / PAGE_SIZE);
+
+  available_area = parea->available_area;
 }

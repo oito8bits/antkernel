@@ -1,39 +1,39 @@
 #include <pg.h>
 #include "cr.h"
 
-u64 pg_get_l4_idx(virt_addr_t virt_addr)
+u64 pg_get_l4_idx(void *virt_addr)
 {
-  return virt_addr >> 39 & 0x1ff;
+  return (u64) virt_addr >> 39 & 0x1ff;
 }
 
-u64 pg_get_l3_idx(virt_addr_t virt_addr)
+u64 pg_get_l3_idx(void *virt_addr)
 {
-  return virt_addr >> 30 & 0x1ff; 
+  return (u64) virt_addr >> 30 & 0x1ff; 
 }
 
-u64 pg_get_l2_idx(virt_addr_t virt_addr)
+u64 pg_get_l2_idx(void *virt_addr)
 {
-  return virt_addr >> 21 & 0x1ff;
+  return (u64) virt_addr >> 21 & 0x1ff;
 }
 
-u64 pg_get_l1_idx(virt_addr_t virt_addr)
+u64 pg_get_l1_idx(void *virt_addr)
 {
-  return virt_addr >> 12 & 0x1ff;
+  return (u64) virt_addr >> 12 & 0x1ff;
 }
 
-u64 pg_get_l0_idx(virt_addr_t virt_addr)
+u64 pg_get_l0_idx(void *virt_addr)
 {
-  return virt_addr & 0xfff;
+  return (u64) virt_addr & 0xfff;
 }
 
-phys_addr_t pg_virt_to_phys(virt_addr_t addr)
+phys_addr_t pg_virt_to_phys(void *addr)
 {
-  return addr - VIRTUAL_BASE;
+  return (u64) addr - KERNEL_ELF_BASE;
 }
 
-virt_addr_t pg_phys_to_virt(phys_addr_t addr)
+void *pg_phys_to_virt(phys_addr_t addr)
 {
-  return VIRTUAL_BASE + addr;
+  return (void *) addr + KERNEL_ELF_BASE;
 }
 
 phys_addr_t pg_get_table_entry_pa(struct table_entry *entry)

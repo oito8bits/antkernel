@@ -58,7 +58,7 @@ static void map_frame_buffer(uintptr_t phys_base)
 {
   map_pages(&kernel_top_table,
             phys_base,
-            FB_VIRTUAL_BASE_ADDR,
+            (void *) FB_VIRTUAL_BASE_ADDR,
             BIT_PRESENT | BIT_WRITE,
             width * height * 4 / PAGE_SIZE);
 }

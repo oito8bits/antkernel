@@ -4,7 +4,8 @@
 #include <ant/types.h>
 #include <ant/boot.h>
 
-#define VIRTUAL_BASE 0xFFFFFFFF80000000
+#define KERNEL_BASE 0xFFFF800000000000
+#define KERNEL_ELF_BASE 0xFFFFFFFF80000000
 
 #define PAGE_SIZE 4096
 
@@ -51,12 +52,12 @@ struct page_entry
   u32 xd: 1; 
 };
 
-u64 pg_get_l4_idx(virt_addr_t virt_addr);
-u64 pg_get_l3_idx(virt_addr_t virt_addr);
-u64 pg_get_l2_idx(virt_addr_t virt_addr);
-u64 pg_get_l1_idx(virt_addr_t virt_addr);
-phys_addr_t pg_virt_to_phys(virt_addr_t addr);
-virt_addr_t pg_phys_to_virt(phys_addr_t addr);
+u64 pg_get_l4_idx(void *virt_addr);
+u64 pg_get_l3_idx(void *virt_addr);
+u64 pg_get_l2_idx(void *virt_addr);
+u64 pg_get_l1_idx(void *virt_addr);
+phys_addr_t pg_virt_to_phys(void *addr);
+void *pg_phys_to_virt(phys_addr_t addr);
 phys_addr_t pg_get_table_entry_pa(struct table_entry *);
 void pg_switch_top_table(phys_addr_t top_table);
 void pg_set_table_entry_pa(struct table_entry *entry, phys_addr_t addr);

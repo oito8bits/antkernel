@@ -5,6 +5,19 @@
 #include <pg.h>
 #include <mm/pmm.h>
 
+enum vmm_area_type
+{
+  low_area,
+  high_area
+};
+
+struct varea
+{
+  void *start;
+  size_t npages;
+};
+
+void vmm_map(struct table_entry *, void *, size_t, u64);
 void vmm_init(struct boot_info *, struct pmm_area *);
 
 #endif

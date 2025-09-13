@@ -2,24 +2,25 @@
 #include <arch/map.h>
 #include <pg.h>
 #include <ant/align.h>
+#include <mm/pmm.h>
 
-virt_addr_t _start_text;
-virt_addr_t _end_text;
+u8 _start_text;
+u8 _end_text;
 
-virt_addr_t _start_data;
-virt_addr_t _end_data;
+u8 _start_data;
+u8 _end_data;
 
-virt_addr_t _start_rodata;
-virt_addr_t _end_rodata;
+u8 _start_rodata;
+u8 _end_rodata;
 
-virt_addr_t _start_stack;
-virt_addr_t _end_stack;
+u8 _start_stack;
+u8 _end_stack;
 
-virt_addr_t _start_bss;
-virt_addr_t _end_bss;
+u8 _start_bss;
+u8 _end_bss;
 
-virt_addr_t _start_brk;
-virt_addr_t _end_brk;
+u8 _start_brk;
+u8 _end_brk;
 
 extern struct table_entry kernel_top_table;
 
@@ -33,8 +34,8 @@ static void map_section(void *start_addr,
     size = ALIGNUP(size, PAGE_SIZE);
 
   map_pages(&kernel_top_table, 
-            (phys_addr_t) pg_virt_to_phys((virt_addr_t) start_addr),
-            (virt_addr_t )start_addr,
+            pg_virt_to_phys(start_addr),
+            start_addr,
             attr,
             size / PAGE_SIZE);
 }
@@ -48,16 +49,39 @@ static void map_kernel(void)
   map_section(&_start_bss, &_end_bss, BIT_PRESENT | BIT_WRITE);
   map_section(&_start_brk, &_end_brk, BIT_PRESENT | BIT_WRITE);
 
-  pg_switch_top_table(pg_virt_to_phys((virt_addr_t) &kernel_top_table));
+  pg_switch_top_table(pg_virt_to_phys(&kernel_top_table));
 }
 
-void vmm_get_pages(size_t npages)
+void vmm_map(struct table_entry *top_table, void *virt_addr, size_t npages, u64 attr)
 {
+  size_t i;
+  for(i = 0; i < npages; i++)
+    map(top_table, 
+        pmm_alloc_avail_page(), 
+        virt_addr + i * PAGE_SIZE, 
+        attr);
+}
+
+void vmm_unmap(struct table_entry *top_table, void *virt_addr)
+{
+
 }
 
 void vmm_init(struct boot_info *boot_info, struct pmm_area *pmm_area)
 {
   phys_addr_t table_area = pmm_area->table_area.start;
-  map_pages(&kernel_top_table, table_area, pg_phys_to_virt(table_area), BIT_PRESENT | BIT_WRITE, pmm_area->table_area.npages);
+  phys_addr_t bitmap_area = pmm_area->bitmap_area.start;
+  map_pages(&kernel_top_table,
+            table_area,
+            pg_phys_to_virt(table_area),
+            BIT_PRESENT | BIT_WRITE,
+            pmm_area->table_area.npages);
+
+  map_pages(&kernel_top_table,
+            bitmap_area,
+            pg_phys_to_virt(bitmap_area),
+            BIT_PRESENT | BIT_WRITE, 
+            pmm_area->bitmap_area.npages);
+
   map_kernel();
 }
