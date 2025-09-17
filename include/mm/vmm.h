@@ -18,6 +18,7 @@ struct varea
 };
 
 void vmm_map(struct table_entry *, void *, size_t, u64);
+void vmm_kmap_data(phys_addr_t, void *, size_t);
 void vmm_init(struct boot_info *, struct pmm_area *);
 
 #endif
