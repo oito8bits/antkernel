@@ -25,7 +25,7 @@ ANT_INCLUDE = include/
 CC = x86_64-linux-gnu-gcc
 AS = x86_64-linux-gnu-as
 LD = x86_64-linux-gnu-ld
-CFLAGS = -ffreestanding -nostdlib -I $(ANT_INCLUDE) -I $(DRIVERS_INCLUDE) -I $(X86-64_INCLUDE)
+CFLAGS = -O2 -ffreestanding -nostdlib -I $(ANT_INCLUDE) -I $(DRIVERS_INCLUDE) -I $(X86-64_INCLUDE)
 LDFLAGS = -T arch/x86_64/ant.ld -z noexecstack
 
 $(KERNEL_NAME): $(X86-64_OBJS) $(KERNEL_OBJS) $(DRIVERS_OBJS) $(LIBK_OBJS) $(MM_OBJS)
