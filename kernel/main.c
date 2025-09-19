@@ -3,7 +3,9 @@
 #include <mm/vmm.h>
 #include <ant/boot.h>
 #include <fb/fb.h>
+#include <acpi/acpi.h>
 #include <mm/heap.h>
+#include <arch/int.h>
 
 extern u64 early_top_table;
 struct table_entry kernel_top_table[512] __attribute__((aligned(4096)));
@@ -17,6 +19,9 @@ int kmain(void)
   map_init(&pmm_area.table_area);
   vmm_init(boot_info, &pmm_area);
   fb_init(boot_info);
+  acpi_init(boot_info);
+  int_init();
+
   heap_init();
 
   return 0;

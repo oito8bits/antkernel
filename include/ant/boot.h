@@ -71,6 +71,7 @@ struct boot_info
   u64 kernel_entry;
   u64 kernel_size;
   struct smbios_header *smbios_header;
+  void *acpi;
 };
 
 void boot_init(struct boot_info *);
