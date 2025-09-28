@@ -12,6 +12,7 @@ SECTIONS
   {
     _start_text = .;
     *(.text)
+    *(.text*)
     _end_text = .;
   }
 
@@ -26,6 +27,7 @@ SECTIONS
   {
     _start_rodata = .;
     *(.rodata)
+    *(.rodata*)
     _end_rodata = .;
   }
   
