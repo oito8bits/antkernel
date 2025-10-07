@@ -8,7 +8,7 @@
 static inline u64 rdmsr(u32 msr)
 {
   u64 msr_lo, msr_hi;
-  __asm__ volatile("rdmsr" : "=a" (msr_lo), "=c" (msr_hi): "c"(msr));
+  __asm__ volatile("rdmsr" : "=a" (msr_lo), "=d" (msr_hi): "c"(msr));
 
   return msr_hi << 32 | msr_lo;
 }
