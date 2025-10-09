@@ -60,4 +60,5 @@ void lapic_init(void)
   lapic_write_reg(LAPIC_SPURIOUS, lapic_read_reg(LAPIC_SPURIOUS) | (1 << 8) | 0xff);
   timer_init();
   disable_pic8259a();
+  lapic_write_reg(LAPIC_EOI, 0x0);
 }
