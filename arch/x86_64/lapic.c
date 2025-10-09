@@ -1,5 +1,4 @@
 #include <lapic.h>
-#include <libk/kprintf.h>
 #include <arch/map.h>
 #include <mm/vmm.h>
 #include "msr.h"
@@ -24,11 +23,6 @@ static void disable_pic8259a(void)
   io_outb(PIC_DATA_SLAVE, 0xff);
 }
 
-static void timer_init(void)
-{
-
-}
-
 void lapic_write_reg(enum lapic_register reg, u32 value)
 {
   lapic_base[reg] = value;
@@ -37,6 +31,17 @@ void lapic_write_reg(enum lapic_register reg, u32 value)
 u32 lapic_read_reg(enum lapic_register reg)
 {
   return lapic_base[reg];
+}
+
+static void timer_init(void)
+{
+  lapic_write_reg(LAPIC_TMRDIV, 0x3);
+  lapic_write_reg(LAPIC_TMRINITCNT, 0xffffffff);
+  pit_sleep(10);
+  lapic_write_reg(LAPIC_LVT_TMR, 0x10000U);
+  u32 ticks_per_10ms = 0xffffffff - lapic_read_reg(LAPIC_TMRCURRCNT);
+  lapic_write_reg(LAPIC_LVT_TMR, 32 | 1 << 7); /* 1 << 7 = periodic Mode, and 32 = vector */
+  lapic_write_reg(LAPIC_TMRINITCNT, ticks_per_10ms);
 }
 
 void lapic_timer_isr(void)
@@ -53,5 +58,6 @@ void lapic_init(void)
             BIT_PRESENT | BIT_WRITE | BIT_CACHE_DISABLE,
             KERNEL_DEFAULT_SIZE / PAGE_SIZE);
   lapic_write_reg(LAPIC_SPURIOUS, lapic_read_reg(LAPIC_SPURIOUS) | (1 << 8) | 0xff);
+  timer_init();
   disable_pic8259a();
 }
