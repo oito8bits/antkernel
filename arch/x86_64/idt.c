@@ -1,5 +1,4 @@
 #include "idt.h"
-#include <fb/fb.h>
 #include "exception.h"
 
 struct idt_entry idt[IDT_ENTRIES];
