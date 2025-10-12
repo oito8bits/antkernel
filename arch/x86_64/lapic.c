@@ -3,9 +3,10 @@
 #include <mm/vmm.h>
 #include "msr.h"
 #include "pit.h"
+#include <libk/kprintf.h>
 #include "io.h"
 
-u32 *lapic_base;
+void *lapic_base;
 
 extern struct table_entry kernel_top_table;
 
@@ -25,12 +26,12 @@ static void disable_pic8259a(void)
 
 void lapic_write_reg(enum lapic_register reg, u32 value)
 {
-  lapic_base[reg] = value;
+  *((u32 *) (lapic_base + reg)) = value;
 }
 
 u32 lapic_read_reg(enum lapic_register reg)
 {
-  return lapic_base[reg];
+  return *((u32 *) (lapic_base + reg));
 }
 
 static void timer_init(void)
@@ -40,7 +41,7 @@ static void timer_init(void)
   pit_sleep(10);
   lapic_write_reg(LAPIC_LVT_TMR, 0x10000U);
   u32 ticks_per_10ms = 0xffffffff - lapic_read_reg(LAPIC_TMRCURRCNT);
-  lapic_write_reg(LAPIC_LVT_TMR, 32 | 1 << 7); /* 1 << 7 = periodic Mode, and 32 = vector */
+  lapic_write_reg(LAPIC_LVT_TMR, 32 | 1 << 17); /* 1 << 17 = periodic Mode, and 32 = vector */
   lapic_write_reg(LAPIC_TMRINITCNT, ticks_per_10ms);
 }
 
@@ -49,16 +50,22 @@ void lapic_timer_isr(void)
 
 }
 
+void lapic_eoi(void)
+{
+  lapic_write_reg(LAPIC_EOI, 0x0);
+}
+
 void lapic_init(void)
 {
-  lapic_base = (u32 *) KERNEL_LAPIC_BASE;
+  u64 apic_phys_base = rdmsr(IA32_APIC_BASE) & ~0xfff;
+  lapic_base = (void *) KERNEL_LAPIC_BASE + apic_phys_base;
   map_pages(&kernel_top_table,
-            (phys_addr_t) rdmsr(IA32_APIC_BASE) & ~0xfff,
+            (phys_addr_t) apic_phys_base,
             lapic_base,
-            BIT_PRESENT | BIT_WRITE | BIT_CACHE_DISABLE,
+            BIT_PRESENT | BIT_WRITE | BIT_CACHE_DISABLE | (1UL << 8),
             KERNEL_DEFAULT_SIZE / PAGE_SIZE);
   lapic_write_reg(LAPIC_SPURIOUS, lapic_read_reg(LAPIC_SPURIOUS) | (1 << 8) | 0xff);
   timer_init();
   disable_pic8259a();
-  lapic_write_reg(LAPIC_EOI, 0x0);
+  lapic_eoi();
 }
