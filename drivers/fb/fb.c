@@ -1,14 +1,12 @@
 #include <fb/fb.h>
 #include "font.h"
-#include <arch/map.h>
+#include <mm/vmm.h>
 
 static u32 *frame_buffer_base;
 static u32 width, height;
 static u16 cursor_x, cursor_y;
 static u32 background_color;
 static u32 foreground_color;
-
-extern struct table_entry kernel_top_table;
 
 static void plot_pixel(u16 x, u16 y, u32 color)
 {
@@ -56,11 +54,9 @@ static void draw_char(u8 c)
 
 static void map_frame_buffer(uintptr_t phys_base)
 {
-  map_pages(&kernel_top_table,
-            phys_base,
-            (void *) FB_VIRTUAL_BASE_ADDR,
-            BIT_PRESENT | BIT_WRITE,
-            width * height * 4 / PAGE_SIZE);
+  vmm_kmap_data(phys_base,
+                (void *) FB_VIRTUAL_BASE_ADDR,
+                width * height * 4 / PAGE_SIZE);
 }
 
 void fb_scrollup(void)
