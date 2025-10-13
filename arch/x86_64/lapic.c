@@ -3,7 +3,6 @@
 #include <mm/vmm.h>
 #include "msr.h"
 #include "pit.h"
-#include <libk/kprintf.h>
 #include "io.h"
 
 void *lapic_base;
