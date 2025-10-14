@@ -6,6 +6,7 @@
 #include <acpi/acpi.h>
 #include <mm/heap.h>
 #include <arch/int.h>
+#include <fs/vfs.h>
 
 extern u64 early_top_table;
 struct table_entry kernel_top_table[512] __attribute__((aligned(4096)));
@@ -21,8 +22,8 @@ int kmain(void)
   fb_init(boot_info);
   acpi_init(boot_info);
   int_init();
-
+  vfs_init();
   heap_init();
-
+  
   return 0;
 }
