@@ -19,8 +19,8 @@ int kmain(void)
   fb_init(boot_info);
   acpi_init(boot_info);
   int_init();
-  vfs_init();
   heap_init();
+  vfs_init();
   
   return 0;
 }
