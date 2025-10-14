@@ -22,7 +22,7 @@ u8 _end_bss;
 u8 _start_brk;
 u8 _end_brk;
 
-extern struct table_entry kernel_top_table;
+struct table_entry kernel_top_table[512] __attribute__((aligned(4096)));
 
 static void map_section(void *start_addr,
                         void *end_addr,
@@ -33,7 +33,7 @@ static void map_section(void *start_addr,
   if(IS_ALIGN(size, PAGE_SIZE))
     size = ALIGNUP(size, PAGE_SIZE);
 
-  map_pages(&kernel_top_table, 
+  map_pages(kernel_top_table, 
             pg_virt_to_phys(start_addr),
             start_addr,
             attr,
@@ -64,7 +64,7 @@ void vmm_map(struct table_entry *top_table, void *virt_addr, size_t npages, u64 
 
 void vmm_kmap_data(phys_addr_t phys_addr, void *virt_addr, size_t npages)
 {
-  map_pages((void *) &kernel_top_table,
+  map_pages((void *) kernel_top_table,
             phys_addr,
             virt_addr,
             BIT_PRESENT | BIT_WRITE,
@@ -80,13 +80,13 @@ void vmm_init(struct boot_info *boot_info, struct pmm_area *pmm_area)
 {
   phys_addr_t table_area = pmm_area->table_area.start;
   phys_addr_t bitmap_area = pmm_area->bitmap_area.start;
-  map_pages(&kernel_top_table,
+  map_pages(kernel_top_table,
             table_area,
             pg_phys_to_virt(table_area),
             BIT_PRESENT | BIT_WRITE,
             pmm_area->table_area.npages);
 
-  map_pages(&kernel_top_table,
+  map_pages(kernel_top_table,
             bitmap_area,
             pg_phys_to_virt(bitmap_area),
             BIT_PRESENT | BIT_WRITE, 

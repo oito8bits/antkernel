@@ -8,8 +8,6 @@
 #include <arch/int.h>
 #include <fs/vfs.h>
 
-struct table_entry kernel_top_table[512] __attribute__((aligned(4096)));
-
 int kmain(void)
 {
   struct boot_info *boot_info = boot_get_info();
