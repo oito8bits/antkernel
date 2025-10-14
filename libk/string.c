@@ -1,8 +1,8 @@
 #include <libk/string.h>
 
-size_t strlen(char *string)
+size_t strlen(const char *string)
 {
-  char *string_ptr = string;
+  const char *string_ptr = string;
   
   while(*string++);
 
@@ -41,3 +41,28 @@ void *memset(void *buff, u64 c, u64 n)
 
   return buff;
 }
+
+size_t memcmp(const void *buf1, const void *buf2, size_t count)
+{
+  const char *p = buf1;
+  const char *q = buf2;
+
+  while(count--)
+  { 
+    if(*p++ != *q++)
+      return p[-1] < q[-1] ? -1 : 1;  
+  } 
+    
+  return 0;
+}
+
+void *strcpy(char *dest, const char *src)
+{
+  return memcpy(dest, src, strlen(src) + 1);
+}
+
+size_t strncmp(const char *s1, const char *s2, size_t n)
+{
+  return memcmp(s1, s2, n);
+}
+
