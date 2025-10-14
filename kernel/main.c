@@ -8,7 +8,6 @@
 #include <arch/int.h>
 #include <fs/vfs.h>
 
-extern u64 early_top_table;
 struct table_entry kernel_top_table[512] __attribute__((aligned(4096)));
 
 int kmain(void)
