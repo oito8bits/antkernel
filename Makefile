@@ -9,6 +9,9 @@ X86-64_INCLUDE = include/arch/x86_64/
 KERNEL_C_SRCS = $(wildcard kernel/*.c)
 KERNEL_OBJS = $(KERNEL_C_SRCS:.c=.o)
 
+FS_C_SRCS = $(wildcard fs/*.c)
+FS_OBJS = $(FS_C_SRCS:.c=.o)
+
 LIBK_SRCS = $(wildcard libk/*.c)
 LIBK_OBJS = $(LIBK_SRCS:.c=.o)
 LIBK_INCLUDE = include/
@@ -28,7 +31,7 @@ LD = x86_64-linux-gnu-ld
 CFLAGS = -O2 -mno-sse -ffreestanding -nostdlib -I $(ANT_INCLUDE) -I $(DRIVERS_INCLUDE) -I $(X86-64_INCLUDE)
 LDFLAGS = -T arch/x86_64/ant.ld -z noexecstack
 
-$(KERNEL_NAME): $(X86-64_OBJS) $(KERNEL_OBJS) $(DRIVERS_OBJS) $(LIBK_OBJS) $(MM_OBJS)
+$(KERNEL_NAME): $(X86-64_OBJS) $(KERNEL_OBJS) $(FS_OBJS) $(DRIVERS_OBJS) $(LIBK_OBJS) $(MM_OBJS)
 	$(LD) $(LDFLAGS) $^ -o $@
 
 %.o: %.c
