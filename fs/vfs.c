@@ -1,6 +1,7 @@
 #include <fs/vfs.h>
 #include <mm/heap.h>
 #include <libk/string.h>
+#include <libk/kprintf.h>
 
 struct mountpoint mountpoints;
 struct file_descriptor file_descriptors[4096];
@@ -21,13 +22,24 @@ static void destroy_mountpoint(struct mountpoint *mountpoint)
 
 static struct mountpoint *get_mountpoint(const char *path)
 {
+  struct mountpoint *mp = NULL;
+  char *mp_str = "";
   struct list_head *pos;
   list_for_each(pos, &mountpoints.head)
   {
-    struct mountpoint *mp = (struct mountpoint *) pos;
-    //if(!strncmp(mp->target, path, strlen(mp->target)))
-      // todo
+    struct mountpoint *mp_pos = (struct mountpoint *) pos;
+    if(!strncmp(mp_pos->target, path, strlen(mp_pos->target)))
+    {
+      if(strlen(mp_pos->target) > strlen(mp_str) &&
+         path[strlen(mp_pos->target)] == '/')
+      {
+        mp = mp_pos;
+        mp_str = mp->target;
+      }
+    }
   }
+
+  return mp;
 }
 
 int get_new_file_descriptor(void)
@@ -45,6 +57,7 @@ int get_new_file_descriptor(void)
 int vfs_open(const char *path, int flags)
 {
   struct mountpoint *mp = get_mountpoint(path);
+  kprintf("mountpoint addr: %lx, %s\n", mp, mp->target);
   if(mp == NULL)
     return -1;
 
