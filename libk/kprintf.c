@@ -71,7 +71,6 @@ int kprintf(const char *format, ...)
 
   while(*format != '\0')
   {
-    u64 long_arg;
     _Bool is_long = 0;
 
     if(*format == '%')
@@ -84,13 +83,9 @@ int kprintf(const char *format, ...)
       }
 
       if(*format != 'l')
-      {
-        long_arg = va_arg(arg, u32);
         is_long = 0;
-      }
       else
       {
-        long_arg = va_arg(arg, u64);
         format++;
         is_long = 1;
       }
@@ -107,16 +102,16 @@ int kprintf(const char *format, ...)
           fb_write(va_arg(arg, void *));
           break;
         case 'i':
-          print_int(long_arg, is_long);
+          print_int(va_arg(arg, u64), is_long);
           break;
         case 'u':
-          print_uint(long_arg);
+          print_uint(va_arg(arg, u64));
           break;
         case 'X':
-          print_hex(long_arg, 1);
+          print_hex(va_arg(arg, u64), 1);
           break;
         case 'x':
-          print_hex(long_arg, 0);
+          print_hex(va_arg(arg, u64), 0);
           break;
        }
     }
