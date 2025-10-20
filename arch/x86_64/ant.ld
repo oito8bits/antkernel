@@ -20,6 +20,7 @@ SECTIONS
   {
     _start_data = .;
     *(.data)
+    *(.data*)
     _end_data = .;
   }
 
@@ -42,6 +43,7 @@ SECTIONS
   {
     _start_bss = .;
     *(.bss)
+    *(.bss*)
     _end_bss = .;
   }
 
