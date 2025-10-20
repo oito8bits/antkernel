@@ -8,7 +8,6 @@ struct file_descriptor file_descriptors[4096];
 extern struct fs_ops tar_ops;
 
 
-__attribute__((noinline))
 static struct fs_ops *get_ops(char *fs_type)
 {
   /* 
@@ -71,16 +70,13 @@ int get_new_file_descriptor(void)
 
   return -1;
 }
-__attribute__((noinline)) int test(struct mountpoint *mp, const char *path, int flags)
-{
-  return mp->ops->open(path, flags);
-}
+
 int vfs_open(const char *path, int flags)
 {
   struct mountpoint *mp = get_mountpoint(path);
   if(mp == NULL)
     return -1;
-  return test(mp, path, flags);
+  return mp->ops->open(path, flags);
 }
 
 size_t vfs_read(int fd, void *buffer, size_t size)
