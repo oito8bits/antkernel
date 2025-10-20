@@ -1,16 +1,34 @@
 #include <fs/vfs.h>
 #include <mm/heap.h>
 #include <libk/string.h>
-#include <libk/kprintf.h>
+#include <fs/ramfs/ramfs.h>
 
 struct mountpoint mountpoints;
 struct file_descriptor file_descriptors[4096];
+extern struct fs_ops tar_ops;
+
+
+__attribute__((noinline))
+static struct fs_ops *get_ops(char *fs_type)
+{
+  /* 
+   * TODO: I need implement a another way to get operations.
+   * A linked list might be a good idea.
+   */
+  if(!strcmp(fs_type, "ramfs"))
+  {
+    struct fs_ops *ops = ramfs_get_ops(); 
+    return ramfs_get_ops();
+  }
+  return NULL;
+}
 
 static void create_mountpoint(char *device, char *target, char *fs_type)
 {
   struct mountpoint *new = heap_malloc(sizeof(struct mountpoint));
   strcpy(new->device, device);
   strcpy(new->target, target);
+  new->ops = get_ops(fs_type);
   list_add(&new->head, &mountpoints.head);
 }
 
@@ -53,15 +71,16 @@ int get_new_file_descriptor(void)
 
   return -1;
 }
-
+__attribute__((noinline)) int test(struct mountpoint *mp, const char *path, int flags)
+{
+  return mp->ops->open(path, flags);
+}
 int vfs_open(const char *path, int flags)
 {
   struct mountpoint *mp = get_mountpoint(path);
-  kprintf("mountpoint addr: %lx, %s\n", mp, mp->target);
   if(mp == NULL)
     return -1;
-
-  return mp->ops.open(path, flags);
+  return test(mp, path, flags);
 }
 
 size_t vfs_read(int fd, void *buffer, size_t size)

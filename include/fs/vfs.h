@@ -22,17 +22,24 @@ struct fs_ops
   char *fs_name;
   int (*open)(const char *, int);
   int (*close)(int);
-  size_t (*read)(int, void *, size_t, size_t);
-  size_t (*write)(int, void *, size_t, size_t);
+  size_t (*read)(int, void *, size_t);
+  size_t (*write)(int, void *, size_t);
 };
 
+/*
+struct mount_ops
+{
+  int (*vfs_mount)(char *, char *, char *);
+  int (*vfs_umount)(struct mountpoint *);
+};
+*/
 struct mountpoint
 {
   struct list_head head;
   char device[VFS_PATH_LENGTH];
   char type[VFS_TYPE_LENGTH];
   char target[VFS_PATH_LENGTH];
-  struct fs_ops ops;
+  struct fs_ops *ops;
 };
 
 int vfs_open(const char *, int);

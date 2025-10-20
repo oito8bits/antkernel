@@ -1,1 +1,1 @@
-#include <initrd/initrd.h>
+#include <fs/ramfs/initrd.h>

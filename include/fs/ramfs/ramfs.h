@@ -1,10 +1,13 @@
-#ifndef _INCLUDE_TAR_
-#define _INCLUDE_TAR_
+#ifndef _INCLUDE_RAMFS_
+#define _INCLUDE_RAMFS_
 
-int tar_open(char *, int);
-size_t tar_write(int, void *, size_t);
-size_t tar_read(int, void *, size_t);
-void tar_close(int);
-void tar_init(void);
+#include <ant/types.h>
+
+struct fs_ops *ramfs_get_ops(void);
+int ramfs_open(const char *, int);
+size_t ramfs_write(int, void *, size_t);
+size_t ramfs_read(int, void *, size_t);
+int ramfs_close(int);
+void ramfs_init(void);
 
 #endif
