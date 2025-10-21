@@ -9,8 +9,8 @@
 
 struct file_descriptor
 {
-  _Bool free;
-  int mountpoint_id;
+  int fs_fd;
+  struct mountpoint *mountpoint;
   char *name;
   int read_offset;
   int write_offset;
@@ -47,7 +47,6 @@ size_t vfs_read(int fd, void *buffer, size_t size);
 size_t vfs_write(int fd, void *buffer, size_t size);
 int vfs_close(int);
 int vfs_mount(char *, char *, char *);
-int get_new_file_descriptor(void);
 int vfs_init(void);
 
 #endif

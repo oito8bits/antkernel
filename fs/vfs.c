@@ -37,7 +37,7 @@ static void destroy_mountpoint(struct mountpoint *mountpoint)
   heap_free(mountpoint);
 }
 
-static struct mountpoint *get_mountpoint(const char *path)
+static struct mountpoint *search_mountpoint(const char *path)
 {
   struct mountpoint *mp = NULL;
   char *mp_str = "";
@@ -59,36 +59,71 @@ static struct mountpoint *get_mountpoint(const char *path)
   return mp;
 }
 
-int get_new_file_descriptor(void)
+static int get_new_file_descriptor(void)
 {
   size_t i;
   for(i = 0; i < 4096; i++)
   {
-    if(!file_descriptors[i].free)
+    if(!file_descriptors[i].fs_fd)
       return i;
   }
 
   return -1;
 }
 
+static struct mountpoint *get_fd_mountpoint(int fd)
+{
+  return file_descriptors[fd].mountpoint;
+}
+
+static int get_fd_fs_fd(int fd)
+{
+  return file_descriptors[fd].fs_fd;
+}
+
 int vfs_open(const char *path, int flags)
 {
-  struct mountpoint *mp = get_mountpoint(path);
+  struct mountpoint *mp = search_mountpoint(path);
   if(mp == NULL)
     return -1;
-  return mp->ops->open(path, flags);
+
+  int fs_fd = mp->ops->open(path, flags);
+  if(fs_fd == -1)
+    return -1;
+
+  int fd = get_new_file_descriptor();
+  file_descriptors[fd] =  (struct file_descriptor)
+                          {.fs_fd = fs_fd,
+                          .mountpoint = mp, 
+                          .read_offset = 0,
+                          .write_offset = 0};
+  
+  return fd;
 }
 
 size_t vfs_read(int fd, void *buffer, size_t size)
 {
+  struct mountpoint *mp = get_fd_mountpoint(fd);
+
+  return mp->ops->read(get_fd_fs_fd(fd), buffer, size);
 }
 
 size_t vfs_write(int fd, void *buffer, size_t size)
 {
+  struct mountpoint *mp = get_fd_mountpoint(fd);
+
+  return mp->ops->write(get_fd_fs_fd(fd), buffer, size);
 }
 
 int vfs_close(int fd)
 {
+  struct mountpoint *mp = get_fd_mountpoint(fd);
+  if(mp->ops->close(get_fd_fs_fd(fd)) == -1)
+    return -1;
+
+  file_descriptors[fd].fs_fd = -1;
+
+  return 0;
 }
 
 int vfs_mount(char *device, char *target, char *fs_type)
@@ -104,6 +139,10 @@ int vfs_umount(struct mountpoint *mountpoint)
 int vfs_init(void)
 {
   list_head_init(&mountpoints.head);
+  
+  size_t i = 0;
+  for(i = 0; i < 4096; i++)
+    file_descriptors[i].fs_fd = -1;
 
   return 0;
 }
