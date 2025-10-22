@@ -5,4 +5,5 @@
 void int_init(void)
 {
   lapic_init();
+  ioapic_init();
 }
