@@ -55,25 +55,6 @@ struct sdt
   u32   creator_revision;
 } __attribute__ ((packed));
 
-struct lapic
-{
-  u8 type;
-  u8 length;
-  u8 acpi_processor_uid;
-  u8 acpi_id;
-  u8 flags;
-} __attribute__ ((packed));
-
-struct ioapic
-{
-  u8 type;
-  u8 length;
-  u8 ioapic_id;
-  u8 reserved;
-  u32 ioapic_address;
-  u32 global_sys_interrupt_base;
-} __attribute__ ((packed));
-
 struct madt
 {
   u8 entry_type;
@@ -103,6 +84,7 @@ struct madt_apic
   u32 flags;
 } __attribute__ ((packed));
 
+struct madt_ioapic *acpi_get_ioapic(void);
 void acpi_init(struct boot_info *);
 
 #endif

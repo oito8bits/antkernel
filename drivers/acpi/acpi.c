@@ -62,6 +62,11 @@ void madt_parse(void)
   }
 }
 
+struct madt_ioapic *acpi_get_ioapic(void)
+{
+  return ioapic;
+}
+
 void acpi_init(struct boot_info *boot_info)
 {
   phys_addr_t table_phys = (phys_addr_t) boot_info->acpi;
