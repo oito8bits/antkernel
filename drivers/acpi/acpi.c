@@ -1,18 +1,16 @@
 #include <acpi/acpi.h>
-#include <libk/kprintf.h>
 #include <arch/map.h>
 #include <mm/vmm.h>
 
 struct xsdp *xsdp;
 struct sdt *xsdt;
 struct sdt *madt;
+struct madt_ioapic *ioapic;
 phys_addr_t *tables;
 
-extern u8 kernel_top_table;
-
-static bool is_madt(struct sdt *madt)
+bool is_madt(struct sdt *table)
 {
-  return *((u64 *) madt) == MADT_SIGNATURE ? true : false;
+  return *((u32 *) table) == MADT_SIGNATURE ? true : false;
 }
 
 static bool is_xsdp(struct xsdp *table)
@@ -49,6 +47,21 @@ void map_sdt_tables(void)
   }
 }
 
+void madt_parse(void)
+{
+  struct madt *madt_base = (void *) madt + sizeof(struct sdt) + 8;
+  struct madt *entry = madt_base;
+  size_t table_len = madt->length - sizeof(struct sdt) - 8;
+  size_t i = 0;
+  while(i < table_len)
+  {
+    if(entry->entry_type == 1)
+      ioapic = (struct madt_ioapic *) entry;
+    i += entry->record_length;
+    entry = (void *) madt_base + i;
+  }
+}
+
 void acpi_init(struct boot_info *boot_info)
 {
   phys_addr_t table_phys = (phys_addr_t) boot_info->acpi;
@@ -70,4 +83,5 @@ void acpi_init(struct boot_info *boot_info)
   xsdt = table;
   
   map_sdt_tables();
+  madt_parse();
 }
