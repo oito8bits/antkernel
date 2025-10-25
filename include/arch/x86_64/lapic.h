@@ -45,6 +45,7 @@ enum lapic_register
   LAPIC_TMR_BASEDIV = (1 << 20)
 };
 
+void lapic_timer_isr(void);
 void lapic_eoi(void);
 void lapic_init(void);
 

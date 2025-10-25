@@ -93,6 +93,8 @@ ex_handler_no_code 29
 ex_handler 30
 ex_handler_no_code 31
 irq_handler 32
+irq_handler 33
+irq_handler 34
 
 .global isr_handlers
 isr_handlers:
@@ -129,3 +131,5 @@ isr_handlers:
 .quad ex_handler_30
 .quad ex_handler_no_code_31
 .quad irq_handler_32
+.quad irq_handler_33
+.quad irq_handler_34

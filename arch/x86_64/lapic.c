@@ -3,7 +3,7 @@
 #include <mm/vmm.h>
 #include "msr.h"
 #include "pit.h"
-#include "io.h"
+#include <arch/io.h>
 
 void *lapic_base;
 

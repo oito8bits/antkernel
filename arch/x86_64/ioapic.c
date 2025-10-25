@@ -1,6 +1,7 @@
 #include <ioapic.h>
 #include <drivers/acpi/acpi.h>
 #include <arch/map.h>
+#include <libk/kprintf.h>
 #include <mm/vmm.h>
 
 struct madt_ioapic *madt_ioapic;
@@ -24,18 +25,22 @@ struct iored
 
 extern struct table_entry kernel_top_table;
 
+__attribute__((noinline))
 static u32 read_reg(int reg)
 {
   ioapic_base[0] = reg;
   return ioapic_base[4];
 }
 
+__attribute__((noinline))
 static void write_reg(int reg, u32 value)
 {
+  kprintf("value: %lx\n", value);
   ioapic_base[0] = reg;
   ioapic_base[4] = value;
 }
 
+__attribute__((noinline))
 static u64 read_redirection(int irq)
 {
   u64 lo = read_reg(0x10 + 2 * irq);
@@ -43,16 +48,20 @@ static u64 read_redirection(int irq)
   return hi << 32 | lo;
 }
 
+__attribute__((noinline))
 static void write_redirection(int irq, struct iored *iored)
 {
   write_reg(0x10 + 2 * irq, iored->raw_iored);
   write_reg(0x11 + 2 * irq, iored->raw_iored >> 32);
+  //kprintf("read_redirection(): %lx, raw_iored: %lx\n", read_redirection(irq), iored->raw_iored);
+    //while(1);
 }
 
 void ioapic_init(void)
 {
   ioapic_base = (u32 *) KERNEL_IOAPIC_BASE;
   madt_ioapic = acpi_get_ioapic();
+  
   // Map ioapic register area.
   map_pages(&kernel_top_table,
             (phys_addr_t) madt_ioapic->ioapic_addr,

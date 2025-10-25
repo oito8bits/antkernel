@@ -1,5 +1,5 @@
 #include "pit.h"
-#include "io.h"
+#include <arch/io.h>
 
 void pit_sleep(u32 ms)
 {
