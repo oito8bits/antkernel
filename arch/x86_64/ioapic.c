@@ -1,4 +1,5 @@
 #include <ioapic.h>
+#include <arch/int.h>
 #include <drivers/acpi/acpi.h>
 #include <arch/map.h>
 #include <libk/kprintf.h>
@@ -75,7 +76,7 @@ void ioapic_init(void)
   for(i = 0; i < 2; i++)
   {
      iored.raw_iored = read_redirection(i);
-     iored.vector = 33 + i;
+     iored.vector = IRQ_IOAPIC_BASE + i;
      iored.flags = 0x0;
      iored.mask |= 1;
      iored.target = 0x0;
