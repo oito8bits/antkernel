@@ -6,7 +6,7 @@
 #include <mm/vmm.h>
 
 struct madt_ioapic *madt_ioapic;
-u32 *ioapic_base;
+volatile u32 *ioapic_base;
 
 struct iored
 {
@@ -20,42 +20,61 @@ struct iored
       u32 reserved;
       u8 target;
     };
-    u64 raw_iored;
+
+    struct
+    {
+      u32 lo;
+      u32 hi;
+    };
+
+    u64 raw;
   };
-} __attribute__((packed));
+} __attribute__ ((packed));
 
 extern struct table_entry kernel_top_table;
 
-__attribute__((noinline))
-static u32 read_reg(int reg)
+static u32 read_reg(u32 reg)
 {
   ioapic_base[0] = reg;
   return ioapic_base[4];
 }
 
-__attribute__((noinline))
-static void write_reg(int reg, u32 value)
+static void write_reg(u32 reg, u32 value)
 {
-  kprintf("value: %lx\n", value);
   ioapic_base[0] = reg;
   ioapic_base[4] = value;
 }
 
-__attribute__((noinline))
-static u64 read_redirection(int irq)
+static u64 read_redirection(u32 irq)
 {
-  u64 lo = read_reg(0x10 + 2 * irq);
-  u64 hi = read_reg(0x11 + 2 * irq);
-  return hi << 32 | lo;
+  return ((u64) read_reg(0x11 + 2 * irq) << 32) | read_reg(0x10 + 2 * irq);
 }
 
-__attribute__((noinline))
-static void write_redirection(int irq, struct iored *iored)
+static void write_redirection(u32 irq, struct iored *iored)
 {
-  write_reg(0x10 + 2 * irq, iored->raw_iored);
-  write_reg(0x11 + 2 * irq, iored->raw_iored >> 32);
-  //kprintf("read_redirection(): %lx, raw_iored: %lx\n", read_redirection(irq), iored->raw_iored);
-    //while(1);
+  write_reg(0x10 + 2 * irq, iored->lo);
+  write_reg(0x11 + 2 * irq, iored->hi);
+}
+
+void iored_init(void)
+{
+  // Set iored entries
+  size_t i;
+  struct iored iored_entry;
+  for(i = 0; i < 2; i++)
+  {
+     iored_entry.raw = read_redirection(i);
+     iored_entry.vector = IRQ_IOAPIC_BASE + i;
+     iored_entry.flags = 0;
+     iored_entry.mask = 1;
+     iored_entry.target = 0;
+     write_redirection(i, &iored_entry);
+  }
+
+  // Unmask keyboard.
+  iored_entry.raw = read_redirection(1);
+  iored_entry.mask = 0;
+  write_redirection(1, &iored_entry);
 }
 
 void ioapic_init(void)
@@ -66,25 +85,9 @@ void ioapic_init(void)
   // Map ioapic register area.
   map_pages(&kernel_top_table,
             (phys_addr_t) madt_ioapic->ioapic_addr,
-            ioapic_base,
+            (void *) ioapic_base,
             BIT_PRESENT | BIT_WRITE | BIT_CACHE_DISABLE | (1UL << 8),
             PAGE_SIZE);
 
-  // Set iored entries.
-  size_t i;
-  struct iored iored;
-  for(i = 0; i < 2; i++)
-  {
-     iored.raw_iored = read_redirection(i);
-     iored.vector = IRQ_IOAPIC_BASE + i;
-     iored.flags = 0x0;
-     iored.mask |= 1;
-     iored.target = 0x0;
-     write_redirection(i, &iored);
-  }
-
-  // Unmask keyboard.
-  iored.raw_iored = read_redirection(1);
-  iored.mask &= ~0x1;
-  write_redirection(1, &iored);
+  iored_init();
 }
