@@ -64,7 +64,7 @@ static int get_new_file_descriptor(void)
   size_t i;
   for(i = 0; i < 4096; i++)
   {
-    if(!file_descriptors[i].fs_fd)
+    if(file_descriptors[i].fs_fd < 0)
       return i;
   }
 
