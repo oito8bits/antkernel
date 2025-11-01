@@ -32,9 +32,9 @@ void map_sdt_tables(void)
   struct sdt *table;
   for(i = 0; i < ntables; i++)
   {
-    vmm_kmap_data((phys_addr_t) tables[i],
-                  pg_phys_to_virt(tables[i]),
-                  1);
+    vmm_kmap_pdata((phys_addr_t) tables[i],
+                   pg_phys_to_virt(tables[i]),
+                   1);
 
     table = pg_phys_to_virt(tables[i]);
     
@@ -42,9 +42,9 @@ void map_sdt_tables(void)
       madt = table;
 
     if(table->length > PAGE_SIZE)
-      vmm_kmap_data((phys_addr_t) tables[i],
-                    table,
-                    table->length / PAGE_SIZE);
+      vmm_kmap_pdata((phys_addr_t) tables[i],
+                     table,
+                     table->length / PAGE_SIZE);
   }
 }
 
@@ -72,7 +72,7 @@ void acpi_init(struct boot_info *boot_info)
 {
   phys_addr_t table_phys = (phys_addr_t) boot_info->acpi;
   void *table = pg_phys_to_virt(table_phys);
-  vmm_kmap_data(table_phys, table, 1);
+  vmm_kmap_pdata(table_phys, table, 1);
 
   if(is_xsdp(table) == false)
     return;
@@ -81,7 +81,7 @@ void acpi_init(struct boot_info *boot_info)
 
   table_phys = (phys_addr_t) xsdp->xsdt_address;
   table = pg_phys_to_virt(table_phys);
-  vmm_kmap_data(table_phys, table, 1);
+  vmm_kmap_pdata(table_phys, table, 1);
 
   if(is_xsdt(table) == false)
     return;

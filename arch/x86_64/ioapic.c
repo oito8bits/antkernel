@@ -4,6 +4,7 @@
 #include <arch/map.h>
 #include <libk/kprintf.h>
 #include <pg.h>
+#include <mm/vmm.h>
 
 struct madt_ioapic *madt_ioapic;
 volatile u32 *ioapic_base;
@@ -84,11 +85,10 @@ void ioapic_init(void)
   ioapic_base = pg_phys_to_virt(ioapic_phys);
   
   // Map ioapic register area.
-  map_pages(&kernel_top_table,
-            ioapic_phys,
-            (void *) ioapic_base,
-            BIT_PRESENT | BIT_WRITE | BIT_CACHE_DISABLE | (1UL << 8),
-            PAGE_SIZE);
+  vmm_kmap(ioapic_phys,
+           (void *) ioapic_base,
+           BIT_PRESENT | BIT_WRITE | BIT_CACHE_DISABLE | (1UL << 8),
+           PAGE_SIZE);
 
   iored_init();
 }

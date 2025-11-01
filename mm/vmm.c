@@ -62,7 +62,16 @@ void vmm_map(struct table_entry *top_table, void *virt_addr, size_t npages, u64 
         attr);
 }
 
-void vmm_kmap_data(phys_addr_t phys_addr, void *virt_addr, size_t npages)
+void vmm_kmap(phys_addr_t phys_addr, void *virt_addr, u64 attr, size_t npages)
+{
+  map_pages((void *) kernel_top_table,
+            phys_addr,
+            virt_addr,
+            attr,
+            npages);
+}
+
+void vmm_kmap_pdata(phys_addr_t phys_addr, void *virt_addr, size_t npages)
 {
   map_pages((void *) kernel_top_table,
             phys_addr,

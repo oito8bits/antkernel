@@ -1,13 +1,11 @@
 #include <lapic.h>
-#include <arch/map.h>
 #include <pg.h>
 #include "msr.h"
 #include "pit.h"
 #include <arch/io.h>
+#include <mm/vmm.h>
 
 void *lapic_base;
-
-extern struct table_entry kernel_top_table;
 
 static void disable_pic8259a(void)
 {
@@ -58,11 +56,10 @@ void lapic_init(void)
 {
   phys_addr_t apic_phys_base = rdmsr(IA32_APIC_BASE) & ~0xfff;
   lapic_base = pg_phys_to_virt(apic_phys_base);
-  map_pages(&kernel_top_table,
-            apic_phys_base,
-            lapic_base,
-            BIT_PRESENT | BIT_WRITE | BIT_CACHE_DISABLE | (1UL << 8),
-            KERNEL_DEFAULT_SIZE / PAGE_SIZE);
+  vmm_kmap(apic_phys_base,
+           lapic_base,
+           BIT_PRESENT | BIT_WRITE | BIT_CACHE_DISABLE | (1UL << 8),
+           KERNEL_DEFAULT_SIZE / PAGE_SIZE);
   lapic_write_reg(LAPIC_SPURIOUS, lapic_read_reg(LAPIC_SPURIOUS) | (1 << 8) | 0xff);
   timer_init();
   disable_pic8259a();
