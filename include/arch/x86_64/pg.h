@@ -79,6 +79,8 @@ u64 pg_get_l2_idx(void *virt_addr);
 u64 pg_get_l1_idx(void *virt_addr);
 phys_addr_t pg_virt_to_phys(void *addr);
 void *pg_phys_to_virt(phys_addr_t addr);
+phys_addr_t pg_virt_to_elf(void *addr);
+void *pg_phys_to_elf(phys_addr_t addr);
 phys_addr_t pg_get_table_entry_pa(struct table_entry *);
 void pg_switch_top_table(phys_addr_t top_table);
 void pg_set_table_entry_pa(struct table_entry *entry, phys_addr_t addr);

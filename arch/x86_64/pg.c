@@ -28,10 +28,20 @@ u64 pg_get_l0_idx(void *virt_addr)
 
 phys_addr_t pg_virt_to_phys(void *addr)
 {
-  return (u64) addr - KERNEL_ELF_BASE;
+  return (u64) addr - KERNEL_BASE;
 }
 
 void *pg_phys_to_virt(phys_addr_t addr)
+{
+  return (void *) addr + KERNEL_BASE;
+}
+
+phys_addr_t pg_virt_to_elf(void *addr)
+{
+  return (u64) addr - KERNEL_ELF_BASE;
+}
+
+void *pg_elf_to_virt(phys_addr_t addr)
 {
   return (void *) addr + KERNEL_ELF_BASE;
 }

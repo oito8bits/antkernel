@@ -1,5 +1,6 @@
 .code64
 
+.equ KERNEL_BASE, 0xFFFF800000000000
 .equ START_KERNEL, 0xFFFFFFFF80000000
 
 .extern _stack_end
@@ -31,7 +32,9 @@ higher_half_kernel:
 .align 4096
 early_top_table:
   .quad kernel_identity_table_level_3 - START_KERNEL + 0x3
-  .fill 510, 8, 0
+  .fill 255, 8, 0
+  .quad kernel_identity_table_level_3 - START_KERNEL + 0x3
+  .fill 254, 8, 0
   .quad kernel_table_level_3 - START_KERNEL + 0x3
 
 .align 4096

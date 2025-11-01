@@ -34,7 +34,7 @@ static void map_section(void *start_addr,
     size = ALIGNUP(size, PAGE_SIZE);
 
   map_pages(kernel_top_table, 
-            pg_virt_to_phys(start_addr),
+            pg_virt_to_elf(start_addr),
             start_addr,
             attr,
             size / PAGE_SIZE);
@@ -49,7 +49,7 @@ static void map_kernel(void)
   map_section(&_start_bss, &_end_bss, BIT_PRESENT | BIT_WRITE);
   map_section(&_start_brk, &_end_brk, BIT_PRESENT | BIT_WRITE);
 
-  pg_switch_top_table(pg_virt_to_phys(&kernel_top_table));
+  pg_switch_top_table(pg_virt_to_elf(&kernel_top_table));
 }
 
 void vmm_map(struct table_entry *top_table, void *virt_addr, size_t npages, u64 attr)
