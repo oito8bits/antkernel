@@ -3,7 +3,7 @@
 #include <drivers/acpi/acpi.h>
 #include <arch/map.h>
 #include <libk/kprintf.h>
-#include <mm/vmm.h>
+#include <pg.h>
 
 struct madt_ioapic *madt_ioapic;
 volatile u32 *ioapic_base;
@@ -79,12 +79,13 @@ void iored_init(void)
 
 void ioapic_init(void)
 {
-  ioapic_base = (u32 *) KERNEL_IOAPIC_BASE;
   madt_ioapic = acpi_get_ioapic();
+  phys_addr_t ioapic_phys = madt_ioapic->ioapic_addr;
+  ioapic_base = pg_phys_to_virt(ioapic_phys);
   
   // Map ioapic register area.
   map_pages(&kernel_top_table,
-            (phys_addr_t) madt_ioapic->ioapic_addr,
+            ioapic_phys,
             (void *) ioapic_base,
             BIT_PRESENT | BIT_WRITE | BIT_CACHE_DISABLE | (1UL << 8),
             PAGE_SIZE);

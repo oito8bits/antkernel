@@ -1,5 +1,6 @@
 #include <acpi/acpi.h>
 #include <arch/map.h>
+#include <pg.h>
 #include <mm/vmm.h>
 
 struct xsdp *xsdp;
@@ -32,10 +33,10 @@ void map_sdt_tables(void)
   for(i = 0; i < ntables; i++)
   {
     vmm_kmap_data((phys_addr_t) tables[i],
-                  (void *) tables[i] + KERNEL_ACPI_BASE,
+                  pg_phys_to_virt(tables[i]),
                   1);
 
-    table = (void *) tables[i] + KERNEL_ACPI_BASE;
+    table = pg_phys_to_virt(tables[i]);
     
     if(is_madt(table))
       madt = table;
@@ -70,7 +71,7 @@ struct madt_ioapic *acpi_get_ioapic(void)
 void acpi_init(struct boot_info *boot_info)
 {
   phys_addr_t table_phys = (phys_addr_t) boot_info->acpi;
-  void *table = boot_info->acpi + KERNEL_ACPI_BASE;
+  void *table = pg_phys_to_virt(table_phys);
   vmm_kmap_data(table_phys, table, 1);
 
   if(is_xsdp(table) == false)
@@ -79,7 +80,7 @@ void acpi_init(struct boot_info *boot_info)
   xsdp = table;
 
   table_phys = (phys_addr_t) xsdp->xsdt_address;
-  table = (void *) table_phys + KERNEL_ACPI_BASE;
+  table = pg_phys_to_virt(table_phys);
   vmm_kmap_data(table_phys, table, 1);
 
   if(is_xsdt(table) == false)

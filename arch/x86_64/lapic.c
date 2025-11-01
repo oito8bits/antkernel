@@ -1,6 +1,6 @@
 #include <lapic.h>
 #include <arch/map.h>
-#include <mm/vmm.h>
+#include <pg.h>
 #include "msr.h"
 #include "pit.h"
 #include <arch/io.h>
@@ -56,10 +56,10 @@ void lapic_eoi(void)
 
 void lapic_init(void)
 {
-  u64 apic_phys_base = rdmsr(IA32_APIC_BASE) & ~0xfff;
-  lapic_base = (void *) KERNEL_LAPIC_BASE + apic_phys_base;
+  phys_addr_t apic_phys_base = rdmsr(IA32_APIC_BASE) & ~0xfff;
+  lapic_base = pg_phys_to_virt(apic_phys_base);
   map_pages(&kernel_top_table,
-            (phys_addr_t) apic_phys_base,
+            apic_phys_base,
             lapic_base,
             BIT_PRESENT | BIT_WRITE | BIT_CACHE_DISABLE | (1UL << 8),
             KERNEL_DEFAULT_SIZE / PAGE_SIZE);
