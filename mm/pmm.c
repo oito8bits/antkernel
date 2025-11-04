@@ -24,7 +24,7 @@ static void alloc_reserved_pages(struct boot_info *boot_info)
   pmm_alloc_addr(0);
 
   struct memory_map *map = &boot_info->map;
-  efi_memory_descriptor *descriptor = map->memory_descriptor;
+  struct efi_memory_descriptor *descriptor = map->memory_descriptor;
   size_t i, j;
   for(i = 0; i < map->memory_map_size / map->descriptor_size; i++)
   {

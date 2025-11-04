@@ -3,7 +3,7 @@
 #include <libk/string.h>
 
 static struct boot_info boot_info;
-efi_memory_descriptor memory_map[4096];
+struct efi_memory_descriptor memory_map[4096];
 
 void boot_init(struct boot_info *info)
 {

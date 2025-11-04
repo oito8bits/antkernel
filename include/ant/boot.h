@@ -23,14 +23,14 @@ typedef enum
   efi_max_memory_type
 } efi_memory_type;
 
-typedef struct
+struct efi_memory_descriptor
 {
   u32 type;
   u64 physical_start;
   u64 virtual_start;
   u64 number_of_pages;
   u64 attributes;
-} efi_memory_descriptor;
+};
 
 typedef enum
 {
@@ -53,7 +53,7 @@ struct gop_video_mode
 struct memory_map
 {
   u64 memory_map_size;
-  efi_memory_descriptor *memory_descriptor;
+  struct efi_memory_descriptor *memory_descriptor;
   u64 descriptor_size;
 };
 
@@ -64,10 +64,17 @@ struct smbios_header
   u16 handle;
 };
 
+struct ramfs
+{
+  void *base;
+  u64 size;
+};
+
 struct boot_info
 {
   struct memory_map map;    
   struct gop_video_mode mode;
+  struct ramfs ramfs;
   u64 kernel_entry;
   u64 kernel_size;
   struct smbios_header *smbios_header;
