@@ -1,7 +1,6 @@
 #include <arch/map.h>
 #include <mm/pmm.h>
 #include <mm/vmm.h>
-#include <ant/boot.h>
 #include <fb/fb.h>
 #include <acpi/acpi.h>
 #include <mm/heap.h>
@@ -10,17 +9,16 @@
 
 int kmain(void)
 {
-  struct boot_info *boot_info = boot_get_info();
   struct pmm_area pmm_area;
   
-  pmm_init(boot_info, &pmm_area);
+  pmm_init(&pmm_area);
   map_init(&pmm_area.table_area);
-  vmm_init(boot_info, &pmm_area);
-  fb_init(boot_info);
-  acpi_init(boot_info);
+  vmm_init(&pmm_area);
+  fb_init();
+  acpi_init();
   int_init();
   heap_init();
   vfs_init();
-  
+
   return 0;
 }

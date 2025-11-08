@@ -1,6 +1,7 @@
 #include <fb/fb.h>
 #include "font.h"
 #include <mm/vmm.h>
+#include <ant/boot.h>
 
 static u32 *frame_buffer_base;
 static u32 width, height;
@@ -110,14 +111,16 @@ void fb_write(char *s)
   while(*s) fb_put_char(*s++);
 }
 
-void fb_init(struct boot_info *info)
+void fb_init(void)
 {
+  struct boot_info *boot_info = boot_get_info();
+
   frame_buffer_base = (u32 *) FB_VIRTUAL_BASE_ADDR;
-  width = info->mode.horizontal_resolution;
-  height = info->mode.vertical_resolution;
+  width = boot_info->mode.horizontal_resolution;
+  height = boot_info->mode.vertical_resolution;
   cursor_x = 0;
   cursor_y = 0;
   fb_set_background_color(FB_BLACK_COLOR);
   fb_set_foreground_color(FB_WHITE_COLOR);
-  map_frame_buffer((uintptr_t) info->mode.frame_buffer_base);
+  map_frame_buffer((uintptr_t) boot_info->mode.frame_buffer_base);
 }

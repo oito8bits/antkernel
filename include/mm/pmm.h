@@ -2,7 +2,6 @@
 #define _INCLUDE_PMM_
 
 #include <ant/list.h>
-#include <ant/boot.h>
 #include <ant/types.h>
 
 #define AVAILABLE_AREAS 2
@@ -29,6 +28,6 @@ phys_addr_t pmm_alloc_page(struct area *);
 phys_addr_t pmm_alloc_avail_page(void);
 s64 pmm_alloc_addr(phys_addr_t);
 void pmm_free_page(struct area *, phys_addr_t);
-void pmm_init(struct boot_info *, struct pmm_area *);
+void pmm_init(struct pmm_area *);
 
 #endif

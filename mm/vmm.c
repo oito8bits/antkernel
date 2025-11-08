@@ -3,6 +3,7 @@
 #include <pg.h>
 #include <ant/align.h>
 #include <mm/pmm.h>
+#include <ant/boot.h>
 
 u8 _start_text;
 u8 _end_text;
@@ -85,8 +86,10 @@ void vmm_unmap(struct table_entry *top_table, void *virt_addr)
 
 }
 
-void vmm_init(struct boot_info *boot_info, struct pmm_area *pmm_area)
+void vmm_init(struct pmm_area *pmm_area)
 {
+  struct boot_info *boot_info = boot_get_info();
+  
   phys_addr_t table_area = pmm_area->table_area.start;
   phys_addr_t bitmap_area = pmm_area->bitmap_area.start;
   phys_addr_t ramfs_area = pmm_area->ramfs_area.start;

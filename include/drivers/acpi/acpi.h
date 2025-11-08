@@ -2,7 +2,6 @@
 #define _INCLUDE_ACPI_
 
 #include <ant/types.h>
-#include <ant/boot.h>
 
 #define XSDP_SIGNATURE 0x2052545020445352
 #define XSDT_SIGNATURE 0x54445358
@@ -85,6 +84,6 @@ struct madt_apic
 } __attribute__ ((packed));
 
 struct madt_ioapic *acpi_get_ioapic(void);
-void acpi_init(struct boot_info *);
+void acpi_init(void);
 
 #endif

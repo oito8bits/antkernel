@@ -7,6 +7,7 @@
 #include <mm/bitset.h>
 #include <arch/x86_64/pg.h>
 #include <ant/align.h>
+#include <ant/boot.h>
 
 static u64 *pages;
 static size_t npages;
@@ -138,8 +139,10 @@ void pmm_free_page(struct area *area, phys_addr_t addr)
  *  |                     |
  *  +---------------------+
  */
-void pmm_init(struct boot_info *boot_info, struct pmm_area *parea)
+void pmm_init(struct pmm_area *parea)
 {
+  struct boot_info *boot_info = boot_get_info();
+
   npages = memmap_get_memory_pages(&boot_info->map);
   nentries = npages / 64;
 

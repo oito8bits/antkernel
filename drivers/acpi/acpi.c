@@ -2,6 +2,7 @@
 #include <arch/map.h>
 #include <pg.h>
 #include <mm/vmm.h>
+#include <ant/boot.h>
 
 struct xsdp *xsdp;
 struct sdt *xsdt;
@@ -68,8 +69,10 @@ struct madt_ioapic *acpi_get_ioapic(void)
   return ioapic;
 }
 
-void acpi_init(struct boot_info *boot_info)
+void acpi_init()
 {
+  struct boot_info *boot_info = boot_get_info();
+  
   phys_addr_t table_phys = (phys_addr_t) boot_info->acpi;
   void *table = pg_phys_to_virt(table_phys);
   vmm_kmap_pdata(table_phys, table, 1);
