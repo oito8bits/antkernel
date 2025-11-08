@@ -19,7 +19,7 @@ struct area
 struct pmm_area
 {
   struct area available_area[AVAILABLE_AREAS];
-  struct area kernel_area;
+  struct area ramfs_area;
   struct area table_area;
   struct area bitmap_area;
 };

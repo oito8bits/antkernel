@@ -113,43 +113,71 @@ void pmm_free_page(struct area *area, phys_addr_t addr)
   bitset_reset(area->pages, addr_to_idx(addr));
 }
 
+/*
+ * This function will initialize the physical memory.
+ * Initially, it should look like this:
+ *  +---------------------+
+ *  | Available Area      |
+ *  +---------------------+
+ *  | Kernel Elf Sections |
+ *  +---------------------+
+ *  |                     |
+ *  | Ramfs Area          |
+ *  |                     |
+ *  +---------------------+
+ *  | Bit Map Area        |
+ *  +---------------------+
+ *  |                     |
+ *  | Table Area          |
+ *  |                     |
+ *  +---------------------+
+ *  |                     |
+ *  |                     |
+ *  | Available Area      |
+ *  |                     |
+ *  |                     |
+ *  +---------------------+
+ */
 void pmm_init(struct boot_info *boot_info, struct pmm_area *parea)
 {
   npages = memmap_get_memory_pages(&boot_info->map);
   nentries = npages / 64;
-  phys_addr_t pages_addr = boot_info->kernel_entry + boot_info->kernel_size;
+
+  // ramfs area.
+  phys_addr_t ramfs_addr = (phys_addr_t) boot_info->ramfs.base;
+  pmm_init_area(&parea->ramfs_area,
+                ramfs_addr,
+                boot_info->ramfs.size / PAGE_SIZE);
+
+  // bitmap area.
+  phys_addr_t pages_addr = ramfs_addr + boot_info->ramfs.size;
   if(IS_ALIGN(pages_addr, PAGE_SIZE))
     pages_addr = ALIGNUP(pages_addr, PAGE_SIZE);
-
   pages = pg_phys_to_virt(pages_addr);
   pmm_init_area(&parea->bitmap_area,
                 pages_addr,
                 nentries * 8 / PAGE_SIZE);
-
   memset(pages, 0, nentries * 8);
   
   alloc_reserved_pages(boot_info);
   
+  // avilable area.
   pmm_init_area(&parea->available_area[0],
                 0, (boot_info->kernel_entry) / PAGE_SIZE);
   
-  pmm_init_area(&parea->kernel_area, 
-                boot_info->kernel_entry,
-                boot_info->kernel_size / PAGE_SIZE);
-
+  // table area.
   phys_addr_t table_area_pa = pages_addr + nentries * 8;
   if(IS_ALIGN(table_area_pa, PAGE_SIZE))
-    table_area_pa = ALIGNUP(table_area_pa, PAGE_SIZE); 
-
+    table_area_pa = ALIGNUP(table_area_pa, PAGE_SIZE);
   size_t table_area_size = 2 * (1 << 20);
   pmm_init_area(&parea->table_area,
                 table_area_pa,
-                table_area_size / PAGE_SIZE); /* 20 MiB */
-  
+                table_area_size / PAGE_SIZE); /* 20 MiB */ 
   phys_addr_t available_area_pa = table_area_pa + table_area_size;
   if(IS_ALIGN(available_area_pa, PAGE_SIZE))
     table_area_pa = ALIGNUP(available_area_pa, PAGE_SIZE);
   
+  // avilable area.
   pmm_init_area(&parea->available_area[1],
                 available_area_pa,
                 npages - available_area_pa / PAGE_SIZE);

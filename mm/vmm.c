@@ -89,6 +89,8 @@ void vmm_init(struct boot_info *boot_info, struct pmm_area *pmm_area)
 {
   phys_addr_t table_area = pmm_area->table_area.start;
   phys_addr_t bitmap_area = pmm_area->bitmap_area.start;
+  phys_addr_t ramfs_area = pmm_area->ramfs_area.start;
+  
   map_pages(kernel_top_table,
             table_area,
             pg_phys_to_virt(table_area),
@@ -100,6 +102,12 @@ void vmm_init(struct boot_info *boot_info, struct pmm_area *pmm_area)
             pg_phys_to_virt(bitmap_area),
             BIT_PRESENT | BIT_WRITE, 
             pmm_area->bitmap_area.npages);
+
+  map_pages(kernel_top_table,
+            ramfs_area,
+            pg_phys_to_virt(ramfs_area),
+            BIT_PRESENT | BIT_WRITE,
+            pmm_area->ramfs_area.npages);
 
   map_kernel();
 }
