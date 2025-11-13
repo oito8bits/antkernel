@@ -7,14 +7,15 @@
 
 struct vfs_fd
 {
-  int fs_fd;
-  struct vfs_ops *ops;
+  int free;
+  struct mountpoint *mp;
+  void *fs_handler;
 };
 
 struct vfs_ops
 {
   char *fs_name;
-  struct vfs_fd *(*open)(const char *, int);
+  int (*open)(struct vfs_fd *, const char *, int);
   int (*close)(struct vfs_fd *);
   size_t (*read)(struct vfs_fd *, void *, size_t);
   size_t (*write)(struct vfs_fd *, void *, size_t);
@@ -23,8 +24,8 @@ struct vfs_ops
 };
 
 int vfs_open(const char *, int);
-size_t vfs_read(int fd, void *buffer, size_t size);
-size_t vfs_write(int fd, void *buffer, size_t size);
+size_t vfs_read(int, void *, size_t);
+size_t vfs_write(int, void *, size_t);
 int vfs_close(int);
 int vfs_mount(char *, char *, char *);
 int vfs_init(void);
