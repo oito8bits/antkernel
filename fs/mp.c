@@ -1,5 +1,6 @@
 #include <fs/mp.h>
 #include <fs/ramfs/ramfs.h>
+#include <fs/devfs/devfs.h>
 #include <string.h>
 #include <mm/heap.h>
 
@@ -11,12 +12,13 @@ static struct vfs_ops *get_ops(char *fs_type)
    * TODO: I need implement a another way to get operations.
    * A linked list might be a good idea.
    */
+  struct vfs_ops *ops = NULL; 
   if(!strcmp(fs_type, "ramfs"))
-  {
-    struct vfs_ops *ops = ramfs_get_ops(); 
-    return ramfs_get_ops();
-  }
-  return NULL;
+    ops = ramfs_get_ops();
+  else if(!strcmp(fs_type, "devfs"))
+    ops = devfs_get_ops();
+
+  return ops;
 }
 
 struct mountpoint *mp_create(char *device, char *target, char *fs_type)
@@ -46,8 +48,10 @@ struct mountpoint *mp_search(const char *path)
     struct mountpoint *mp_pos = (struct mountpoint *) pos;
     if(!strncmp(mp_pos->target, path, strlen(mp_pos->target)))
     {
-      if(strlen(mp_pos->target) > strlen(mp_str) &&
-         path[strlen(mp_pos->target)] == '/')
+      size_t pos_str_len = strlen(mp_pos->target);
+      size_t mp_str_len = strlen(mp_str);
+      if((pos_str_len > mp_str_len || pos_str_len == mp_str_len) &&
+         path[strlen(mp_pos->target) - 1] == '/')
       {
         mp = mp_pos;
         mp_str = mp->target;
