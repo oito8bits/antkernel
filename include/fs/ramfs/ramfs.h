@@ -28,7 +28,7 @@ struct ramfs_tar_header
 };
 
 struct vfs_ops *ramfs_get_ops(void);
-struct vfs_fd *ramfs_open(const char *, int);
+int ramfs_open(struct vfs_fd *, const char *, int);
 size_t ramfs_write(struct vfs_fd *, void *, size_t);
 size_t ramfs_read(struct vfs_fd *, void *, size_t);
 int ramfs_close(struct vfs_fd *);

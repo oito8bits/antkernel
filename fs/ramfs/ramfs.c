@@ -1,9 +1,7 @@
 #include <fs/ramfs/ramfs.h>
+#include <fs/ramfs/ramdisk.h>
 #include <fs/vfs.h>
-#include <ant/boot.h>
 #include <mm/vmm.h>
-
-struct ramfs_tar_header *header;
 
 struct vfs_ops tar_ops =
 {
@@ -21,9 +19,9 @@ struct vfs_ops *ramfs_get_ops(void)
   return &tar_ops;
 }
 
-struct vfs_fd *ramfs_open(const char *path, int flags)
+int ramfs_open(struct vfs_fd *fd, const char *path, int flags)
 {
-
+  vfs_open(fd->mp->device, 0);
 }
 
 size_t ramfs_write(struct vfs_fd *fd, void *buffer, size_t count)
@@ -48,10 +46,5 @@ int ramfs_umount(struct mountpoint *mp)
 
 void ramfs_init(void)
 {
-  struct boot_info *boot_info = boot_get_info();
-  
-  phys_addr_t ramfs_phys = (phys_addr_t) boot_info->ramfs.base;
-  vmm_kmap_pdata(ramfs_phys, pg_phys_to_virt(ramfs_phys), boot_info->ramfs.size / PAGE_SIZE);
-
-  header = (struct ramfs_tar_header *) pg_phys_to_virt(ramfs_phys);
+  ramdisk_init();
 }
