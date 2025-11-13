@@ -9,7 +9,7 @@ X86-64_INCLUDE = include/arch/x86_64/
 KERNEL_C_SRCS = $(wildcard kernel/*.c)
 KERNEL_OBJS = $(KERNEL_C_SRCS:.c=.o)
 
-FS_C_SRCS = $(wildcard fs/*.c fs/ramfs/*.c fs/ramfs/tar/*.c)
+FS_C_SRCS = $(wildcard fs/*.c fs/ramfs/*.c fs/devfs/*.c)
 FS_OBJS = $(FS_C_SRCS:.c=.o)
 
 LIBK_SRCS = $(wildcard libk/*.c)
