@@ -5,11 +5,17 @@
 #include <stddef.h>
 #include <fs/mp.h>
 
+#define VFS_SEEK_SET 0
+#define VFS_SEEK_CUR 1
+#define VFS_SEEK_END 2
+
 struct vfs_fd
 {
   int free;
   struct mountpoint *mp;
-  void *fs_handler;
+  void *fs_file_info;
+  unsigned long offset;
+  unsigned long size;
 };
 
 struct vfs_ops
@@ -26,6 +32,7 @@ struct vfs_ops
 int vfs_open(const char *, int);
 size_t vfs_read(int, void *, size_t);
 size_t vfs_write(int, void *, size_t);
+long int vfs_lseek(int, long int, int);
 int vfs_close(int);
 int vfs_mount(char *, char *, char *);
 int vfs_init(void);

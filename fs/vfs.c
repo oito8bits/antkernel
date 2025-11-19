@@ -32,6 +32,7 @@ int vfs_open(const char *path, int flags)
     return -1;
  
   file_descriptors[fd].free = 1;
+  file_descriptors[fd].offset = 0;
   
   return fd;
 }
@@ -44,6 +45,24 @@ size_t vfs_read(int fd, void *buffer, size_t size)
 size_t vfs_write(int fd, void *buffer, size_t size)
 {
   return file_descriptors[fd].mp->ops->write(&file_descriptors[fd], buffer, size);
+}
+
+long int vfs_lseek(int fd, long int offset, int whence)
+{
+  long int new_offset = -1;
+  switch(whence)
+  {
+    case VFS_SEEK_SET:
+      new_offset = offset;
+    case VFS_SEEK_CUR:
+      new_offset = file_descriptors[fd].offset + offset;
+    case VFS_SEEK_END:
+      new_offset = file_descriptors[fd].size + offset;
+  }
+
+  file_descriptors[fd].offset = new_offset;
+
+  return new_offset;
 }
 
 int vfs_close(int fd)
