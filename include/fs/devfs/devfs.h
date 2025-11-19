@@ -9,6 +9,7 @@ struct dev
 {
   struct list_head head;
   struct vfs_ops *ops;
+  size_t size;
 };
 
 struct vfs_ops *devfs_get_ops(void);
