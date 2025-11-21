@@ -1,7 +1,7 @@
 #include <fs/mp.h>
 #include <fs/ramfs/ramfs.h>
 #include <fs/devfs/devfs.h>
-#include <string.h>
+#include <libk/string.h>
 #include <mm/heap.h>
 
 struct mountpoint mountpoints;
