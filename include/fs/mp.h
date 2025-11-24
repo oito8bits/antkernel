@@ -10,6 +10,7 @@ struct mountpoint
   char type[32];
   char target[32];
   struct vfs_ops *ops;
+  int dev_fd;
 };
 
 struct mountpoint *mp_create(char *, char *, char *);
