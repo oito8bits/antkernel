@@ -72,8 +72,6 @@ int ramfs_open(struct vfs_fd *fd, const char *path, int flags)
   } while(name_len != path_len);
   ramfs_fd->absolute_offset = vfs_lseek(dev_fd, 0, VFS_SEEK_CUR) - BLOCK_SIZE;
   fd->fs_file_info = ramfs_fd;
-#include <libk/kprintf.h>
-  kprintf("abosulte_offset: %li\n", ramfs_fd->absolute_offset);
   vfs_lseek(dev_fd, old_offset, VFS_SEEK_SET);
 
   return 0;
