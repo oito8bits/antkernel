@@ -59,6 +59,9 @@ struct mountpoint *mp_search(const char *path)
     }
   }
 
+  if(&mp->head == &mountpoints.head)
+    return NULL;
+
   return mp;
 }
 
