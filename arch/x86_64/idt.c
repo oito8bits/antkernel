@@ -1,5 +1,5 @@
 #include "idt.h"
-#include "isr.h"
+#include <arch/isr.h>
 
 struct idt_entry idt[IDT_ENTRIES];
 struct idt_register idtr;

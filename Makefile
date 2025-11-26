@@ -6,7 +6,7 @@ X86-64_OBJS = $(X86-64_C_SRCS:.c=.o)
 X86-64_OBJS += $(X86-64_ASM_SRCS:.S=.o)
 X86-64_INCLUDE = include/arch/x86_64/
 
-KERNEL_C_SRCS = $(wildcard kernel/*.c)
+KERNEL_C_SRCS = $(wildcard kernel/*.c kernel/sched/*.c)
 KERNEL_OBJS = $(KERNEL_C_SRCS:.c=.o)
 
 FS_C_SRCS = $(wildcard fs/*.c fs/ramfs/*.c fs/devfs/*.c)

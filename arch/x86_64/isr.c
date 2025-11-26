@@ -1,8 +1,9 @@
-#include "isr.h"
+#include <arch/isr.h>
 #include <arch/int.h>
 #include <arch/x86_64/lapic.h>
 #include <arch/x86_64/ioapic.h>
 #include <drivers/keyboard/ps2.h>
+#include <kernel/sched/sched.h>
 
 void isr_handler_c(struct isr_context *ctx)
 {
@@ -12,6 +13,7 @@ void isr_handler_c(struct isr_context *ctx)
   {
     case 32:
       lapic_timer_isr();
+      sched();
       break;
     case 34:
       keyboard_irq_handler();
