@@ -39,12 +39,19 @@ int vfs_open(const char *path, int flags)
 
 size_t vfs_read(int fd, void *buffer, size_t size)
 {
-  return file_descriptors[fd].mp->ops->read(&file_descriptors[fd], buffer, size);
+  size_t ret = file_descriptors[fd].mp->ops->read(&file_descriptors[fd], buffer, size);
+  file_descriptors[fd].offset += ret;
+#include <libk/kprintf.h>
+  kprintf("ret: %li\n", ret);
+  return ret;
 }
 
 size_t vfs_write(int fd, void *buffer, size_t size)
 {
-  return file_descriptors[fd].mp->ops->write(&file_descriptors[fd], buffer, size);
+  size_t ret = file_descriptors[fd].mp->ops->write(&file_descriptors[fd], buffer, size);
+  file_descriptors[fd].offset += ret;
+
+  return ret;
 }
 
 long int vfs_lseek(int fd, long int offset, int whence)

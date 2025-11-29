@@ -19,7 +19,6 @@ struct dev ramdisk_dev;
 size_t ramdisk_write(struct vfs_fd *fd, void *buffer, size_t count)
 {
   memcpy(ramdisk_base + fd->offset, buffer, count);
-  fd->offset += count;
 
   return count;
 }
@@ -27,7 +26,6 @@ size_t ramdisk_write(struct vfs_fd *fd, void *buffer, size_t count)
 size_t ramdisk_read(struct vfs_fd *fd, void *buffer, size_t count)
 {
   memcpy(buffer, ramdisk_base + fd->offset, count);
-  fd->offset += count;
 
   return count;
 }

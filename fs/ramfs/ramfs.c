@@ -85,7 +85,7 @@ size_t ramfs_write(struct vfs_fd *fd, void *buffer, size_t count)
   int dev_fd = fd->mp->dev_fd;
   struct ramfs_fd *ramfs_fd = fd->fs_file_info;
   size_t old_offset = vfs_lseek(dev_fd, 0, VFS_SEEK_CUR);
-  vfs_lseek(dev_fd, ramfs_fd->absolute_offset, VFS_SEEK_CUR);
+  vfs_lseek(dev_fd, ramfs_fd->absolute_offset + fd->offset, VFS_SEEK_CUR);
   size_t size = vfs_write(dev_fd, buffer, count);
   vfs_lseek(dev_fd, old_offset, VFS_SEEK_SET);
   
@@ -97,7 +97,7 @@ size_t ramfs_read(struct vfs_fd *fd, void *buffer, size_t count)
   int dev_fd = fd->mp->dev_fd;
   struct ramfs_fd *ramfs_fd = fd->fs_file_info;
   size_t old_offset = vfs_lseek(dev_fd, 0, VFS_SEEK_CUR);
-  vfs_lseek(dev_fd, ramfs_fd->absolute_offset, VFS_SEEK_CUR);
+  vfs_lseek(dev_fd, ramfs_fd->absolute_offset + fd->offset, VFS_SEEK_CUR);
   size_t size = vfs_read(dev_fd, buffer, count);
   vfs_lseek(dev_fd, old_offset, VFS_SEEK_SET);
 
