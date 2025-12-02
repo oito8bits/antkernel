@@ -10,6 +10,7 @@ isr_handler:
   pushq %rcx
   pushq %rax
   pushq %rbx
+  pushq %rbp
   pushq %r15
   pushq %r14
   pushq %r13
@@ -28,6 +29,7 @@ isr_handler:
   popq  %r13
   popq  %r14
   popq  %r15
+  popq  %rbp
   popq  %rbx
   popq  %rax
   popq  %rcx

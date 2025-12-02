@@ -14,6 +14,7 @@ struct isr_context
   u64 r13;
   u64 r14;
   u64 r15;
+  u64 rbp;
   u64 rbx;
   u64 rax;
   u64 rcx;
@@ -27,7 +28,7 @@ struct isr_context
   u64 rflags;
   u64 rsp;
   u64 ss;
-};
+} __attribute__ ((packed));
 
 void isr_handler_c(struct isr_context *); 
 
