@@ -1,5 +1,6 @@
 #include <mm/heap.h>
 #include <mm/vmm.h>
+#include <libk/kprintf.h>
 
 static struct block heap_head;
 extern u64 kernel_top_table;
@@ -21,11 +22,13 @@ static void colapse_free_blocks(void)
 
 static struct block *search_first_free_block(size_t size)
 {
+  //kprintf("Inside search_first_free_block()...\n");
   struct block *p = (struct block *) heap_head.head.next;
   struct list_head *pos = 0;
   list_for_each(pos, &heap_head.head)
   {
     p = (struct block *) pos;
+    //kprintf("size: %li, addr: %lx, free: %li, size: %li, size + block: %li\n", p->size, p, p->free, size, size + sizeof(struct block));
     if(p->free)
     {
       if(!list_is_head(pos->next, &heap_head.head))
@@ -45,6 +48,17 @@ static struct block *search_first_free_block(size_t size)
     return p;
   
   return 0;
+}
+
+void heap_show_blocks(void)
+{
+  struct block *p = (struct block *) heap_head.head.next;
+  struct list_head *pos = 0;
+  list_for_each(pos, &heap_head.head)
+  {
+    p = (struct block *) pos;
+    kprintf("%li, free: %i, addr: %lx\n", p->size, p->free, p);
+  }
 }
 
 void *heap_malloc(size_t size)

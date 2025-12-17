@@ -13,7 +13,7 @@ void isr_handler_c(struct isr_context *ctx)
   {
     case 32:
       lapic_timer_isr();
-      sched();
+      sched(ctx);
       break;
     case 34:
       keyboard_irq_handler();

@@ -14,5 +14,6 @@ struct block
 void heap_init();
 void *heap_malloc(size_t);
 void heap_free(void *);
+void heap_show_blocks(void);
 
 #endif

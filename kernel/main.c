@@ -6,6 +6,8 @@
 #include <mm/heap.h>
 #include <arch/int.h>
 #include <fs/vfs.h>
+#include <kernel/exec.h>
+#include <kernel/sched/sched.h>
 
 int kmain(void)
 {
@@ -16,9 +18,18 @@ int kmain(void)
   vmm_init(&pmm_area);
   fb_init();
   acpi_init();
-  int_init();
   heap_init();
   vfs_init();
+  sched_init();
+  int_init();
 
+// Just testing....
+#include <libk/kprintf.h>
+  vfs_mount("", "/dev/", "devfs");
+  vfs_mount("/dev/ramdisk", "/", "ramfs");
+  //int fd = exec_execve("/userland/shell", NULL, NULL);
+  //if(fd < 0)
+    kprintf("Failed to open file.\n");
+  kprintf("I'm still alive."); 
   return 0;
 }

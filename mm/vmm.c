@@ -4,6 +4,7 @@
 #include <ant/align.h>
 #include <mm/pmm.h>
 #include <ant/boot.h>
+#include <libk/string.h>
 
 u8 _start_text;
 u8 _end_text;
@@ -79,6 +80,11 @@ void vmm_kmap_pdata(phys_addr_t phys_addr, void *virt_addr, size_t npages)
             virt_addr,
             BIT_PRESENT | BIT_WRITE,
             npages);
+}
+
+void vmm_kappend_process_space(struct table_entry *top_table)
+{
+  memcpy(kernel_top_table, top_table, sizeof(struct table_entry) * 256);
 }
 
 void vmm_unmap(struct table_entry *top_table, void *virt_addr)

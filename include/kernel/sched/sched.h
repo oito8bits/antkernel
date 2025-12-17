@@ -4,6 +4,8 @@
 #include <ant/types.h>
 #include <ant/list.h>
 #include <arch/isr.h>
+#include <kernel/elf.h>
+#include <mm/vmm.h>
 
 enum process_status
 {
@@ -12,14 +14,31 @@ enum process_status
   DEAD
 };
 
+struct sched_thread
+{
+  struct list_head head;
+  size_t tid;
+  struct isr_context context;
+  void *rsp0;
+  enum process_status status;
+  struct sched_process *parent;
+};
+
 struct sched_process
 {
   struct list_head head;
+  size_t pid;
+  struct table_entry *top_table; 
+  struct sched_thread threads;
   enum process_status status;
-  struct isr_context *context;
+  struct elf_64 elf;
 };
 
-void sched(void);
+void sched(struct isr_context *context);
+struct sched_process *sched_create_process(const char *);
+void sched_destroy_process(struct sched_process *);
+struct sched_thread *sched_create_thread(struct sched_process *, const char *, void *, void *);
+void sched_destroy_thread(struct sched_thread *);
 void sched_init(void);
 
 #endif
