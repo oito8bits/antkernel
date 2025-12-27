@@ -33,22 +33,32 @@ static void destroy_stack(struct table_entry *top_table, u64 addr)
 
 static void switch_context(struct isr_context *new, struct isr_context *old)
 {
-  new->rip = old->rip;
+  new->rip = old->rip; 
+  /*
+  new->r9 = old->r9; 
+  new->r10 = old->r10; 
+  new->r11 = old->r11; 
+  new->r12 = old->r12; 
+  new->r13 = old->r13; 
+  new->r14 = old->r14; 
+  new->r15 = old->r15; 
+  new->rbp = old->rbp; 
+  new->rbx = old->rbx; 
+  new->rax = old->rax; 
+  new->rcx = old->rcx; 
+  new->rdx = old->rdx; 
+  new->rsi = old->rsi; 
+  new->rdi = old->rdi; 
+  new->rflags = old->rflags; 
   new->rsp = old->rsp;
+*/
 }
 
 void sched(struct isr_context *context)
 {
-  if(current_thread != 0)
-    //current_thread->context.rip = context->rip;
-    switch_context(&current_thread->context, context);
-  else
-  {
-    struct sched_process *process = (struct sched_process *) processes.head.next;
-    current_thread = (struct sched_thread *) &process->threads.head;
-  }
+  struct sched_thread *thread;
 
-  struct sched_thread *thread = (struct sched_thread *) current_thread->head.next;
+  thread = (struct sched_thread *) current_thread->head.next;
   if(list_is_head(&thread->head, &current_thread->parent->threads.head))
   {
     struct sched_process *next_process = (struct sched_process *) current_thread->parent->head.next;
@@ -57,10 +67,10 @@ void sched(struct isr_context *context)
     thread = (struct sched_thread *) next_process->threads.head.next;
   }
   
+  switch_context(&current_thread->context, context);
   current_thread->status = READY;
   current_thread = thread;
   current_thread->status = RUNNING;
-  //context->rip = current_thread->context.rip;
   switch_context(context, &current_thread->context);
 }
 
@@ -72,7 +82,6 @@ struct sched_process *sched_create_process(const char *name)
 
   size_t table_size = sizeof(struct table_entry) * 512;
   new_process->top_table = heap_malloc(table_size);
-  kprintf("process top table: %lx\n", new_process->top_table);
   memset(new_process->top_table, 0, table_size);
   if(new_process->top_table == 0)
     return 0;
@@ -100,10 +109,7 @@ struct sched_thread *sched_create_thread(struct sched_process *process, const ch
   thread->tid = last_free_tid++;
   thread->status = READY;
   thread->context.ss = 0x10;
-  //thread->context.rsp = create_stack((void *) &kernel_top_table);
   thread->context.rsp = (u64) heap_malloc(256);
-  kprintf("rsp: %lx\n", thread->context.rsp);
-  //heap_show_blocks();
   thread->context.rflags = 0x202;
   thread->context.cs = 0x8;
   thread->context.rip = (u64) entrypoint;
@@ -128,7 +134,6 @@ void sched_idle(void)
 {
   while(1)
   {
-    count1++;
     __asm__ __volatile__("hlt");
   }
 }
@@ -138,18 +143,16 @@ void sched_idle2(void)
   while(1)
   {
     count2++;
-    __asm__ __volatile__("hlt");
+    __asm__ __volatile__("nop");
   }
 }
 
 void sched_idle3(void)
 {
-#include <drivers/fb/fb.h>
   while(1)
   {
-    //kprintf("count1: %li count2: %li, count3: %li\n", count1, count2, count3);
-    fb_write("shed_idle3...\n");
-    __asm__ __volatile__("hlt");
+    count1++;
+    __asm__ __volatile__("nop");
   }
 }
 
@@ -158,7 +161,7 @@ void sched_idle4(void)
   while(1)
   {
     count3++;
-    __asm__ __volatile__("hlt");
+    __asm__ __volatile__("nop");
   }
 }
 
@@ -167,12 +170,12 @@ void sched_init(void)
   list_head_init(&processes.head);
   
   struct sched_process *process = sched_create_process("idle process");
-  sched_create_thread(process, "main thread", sched_idle, 0);  
+  current_thread = sched_create_thread(process, "main thread", sched_idle, 0);  
   
   struct sched_process *process2 = sched_create_process("idle process");
   sched_create_thread(process2, "main thread", sched_idle2, 0);  
   sched_create_thread(process2, "main thread", sched_idle4, 0);  
 
   struct sched_process *process3 = sched_create_process("idle process");
-  sched_create_thread(process3, "main thread", sched_idle3, 0);  
+  sched_create_thread(process3, "main thread", sched_idle3, 0); 
 }
