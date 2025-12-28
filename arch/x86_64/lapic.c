@@ -6,6 +6,7 @@
 #include <mm/vmm.h>
 
 void *lapic_base;
+u32 ticks_per_10ms;
 
 static void disable_pic8259a(void)
 {
@@ -21,23 +22,28 @@ static void disable_pic8259a(void)
   io_outb(PIC_DATA_SLAVE, 0xff);
 }
 
-void lapic_write_reg(enum lapic_register reg, u32 value)
+static void lapic_write_reg(enum lapic_register reg, u32 value)
 {
   *((u32 *) (lapic_base + reg)) = value;
 }
 
-u32 lapic_read_reg(enum lapic_register reg)
+static u32 lapic_read_reg(enum lapic_register reg)
 {
   return *((u32 *) (lapic_base + reg));
 }
 
-static void timer_init(void)
+static void calculate_ticks_per_10ms(void)
 {
   lapic_write_reg(LAPIC_TMRDIV, 0x3);
   lapic_write_reg(LAPIC_TMRINITCNT, 0xffffffff);
   pit_sleep(10);
   lapic_write_reg(LAPIC_LVT_TMR, 0x10000U);
-  u32 ticks_per_10ms = 0xffffffff - lapic_read_reg(LAPIC_TMRCURRCNT);
+  ticks_per_10ms = 0xffffffff - lapic_read_reg(LAPIC_TMRCURRCNT);
+}
+
+void lapic_timer_enable(void)
+{
+  lapic_write_reg(LAPIC_TMRDIV, 0x3);
   lapic_write_reg(LAPIC_LVT_TMR, 32 | 1 << 17); /* 1 << 17 = periodic Mode, and 32 = vector */
   lapic_write_reg(LAPIC_TMRINITCNT, ticks_per_10ms);
 }
@@ -61,7 +67,7 @@ void lapic_init(void)
            BIT_PRESENT | BIT_WRITE | BIT_CACHE_DISABLE | (1UL << 8),
            KERNEL_DEFAULT_SIZE / PAGE_SIZE);
   lapic_write_reg(LAPIC_SPURIOUS, lapic_read_reg(LAPIC_SPURIOUS) | (1 << 8) | 0xff);
-  timer_init();
+  calculate_ticks_per_10ms();
   disable_pic8259a();
   lapic_eoi();
 }
