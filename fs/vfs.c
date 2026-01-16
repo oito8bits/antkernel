@@ -41,8 +41,6 @@ size_t vfs_read(int fd, void *buffer, size_t size)
 {
   size_t ret = file_descriptors[fd].mp->ops->read(&file_descriptors[fd], buffer, size);
   file_descriptors[fd].offset += ret;
-#include <libk/kprintf.h>
-  kprintf("ret: %li\n", ret);
   return ret;
 }
 

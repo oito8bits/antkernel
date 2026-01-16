@@ -34,7 +34,7 @@ int elf_parse(struct elf_64 *elf)
 
   return 0;
 }
-
+extern void tlb_flush(void);
 int elf_load(struct elf_64 *elf, struct table_entry *table)
 {
   size_t table_size = sizeof(struct table_entry) * 512;
@@ -46,11 +46,24 @@ int elf_load(struct elf_64 *elf, struct table_entry *table)
     u64 vaddr = elf->program_header[i].vaddr;
     if(IS_ALIGN(vaddr, PAGE_SIZE))
       vaddr &= ~0xfffUL;
-    kprintf("vaddr = %lx\n", vaddr);
-    size_t size = elf->program_header[i].memsz;
-    vmm_map(table, (void *) vaddr, size / PAGE_SIZE, BIT_PRESENT | BIT_WRITE);
-    vfs_lseek(elf->fd, elf->program_header[i].offset, VFS_SEEK_SET);
+   
+    if(elf->program_header[i].type != 1)
+      continue;
+ 
+    size_t size = elf->program_header[i].memsz; 
+    if(!size)
+      continue;
+    
+    size_t pages = size; 
+    if(IS_ALIGN(pages, PAGE_SIZE))
+      pages = ALIGNUP(pages, PAGE_SIZE);
+    pages /= PAGE_SIZE;
+
+    kprintf("vaddr: %#lx, pages: %i, size: %#lx, type: %li\n", vaddr, pages, size, elf->program_header[i].type);
+    vmm_map(table, (void *) vaddr, pages , BIT_PRESENT | BIT_WRITE | BIT_USER);
     vmm_kappend_process_space(table);
+    //tlb_flush();
+    vfs_lseek(elf->fd, elf->program_header[i].offset, VFS_SEEK_SET);
     vfs_read(elf->fd, (void *) vaddr, size);
   }
 }

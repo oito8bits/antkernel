@@ -44,9 +44,9 @@ static void map_section(void *start_addr,
 
 static void map_kernel(void)
 {
-  map_section(&_start_text, &_end_text, BIT_PRESENT);
+  map_section(&_start_text, &_end_text, BIT_PRESENT | BIT_WRITE);
   map_section(&_start_data, &_end_data, BIT_PRESENT | BIT_WRITE);
-  map_section(&_start_rodata, &_end_rodata, BIT_PRESENT);
+  map_section(&_start_rodata, &_end_rodata, BIT_PRESENT | BIT_WRITE);
   map_section(&_start_stack, &_end_stack, BIT_PRESENT | BIT_WRITE);
   map_section(&_start_bss, &_end_bss, BIT_PRESENT | BIT_WRITE);
   map_section(&_start_brk, &_end_brk, BIT_PRESENT | BIT_WRITE);
@@ -87,36 +87,42 @@ void vmm_kappend_process_space(struct table_entry *top_table)
   memcpy(kernel_top_table, top_table, sizeof(struct table_entry) * 256);
 }
 
+void vmm_kappend_kernel_space(struct table_entry *top_table)
+{
+  memcpy(&top_table[256], &kernel_top_table[256], sizeof(struct table_entry) * 256);
+}
+
 void vmm_unmap(struct table_entry *top_table, void *virt_addr)
 {
 
 }
 
-void vmm_init(struct pmm_area *pmm_area)
+void vmm_init(void)
 {
   struct boot_info *boot_info = boot_get_info();
   
-  phys_addr_t table_area = pmm_area->table_area.start;
-  phys_addr_t bitmap_area = pmm_area->bitmap_area.start;
-  phys_addr_t ramfs_area = pmm_area->ramfs_area.start;
-  
+  struct area *area;
+ 
+  area = pmm_get_area_addr(PMM_TABLE_AREA);
   map_pages(kernel_top_table,
-            table_area,
-            pg_phys_to_virt(table_area),
+            area->start,
+            pg_phys_to_virt(area->start),
             BIT_PRESENT | BIT_WRITE,
-            pmm_area->table_area.npages);
+            area->npages);
 
+  area = pmm_get_area_addr(PMM_BITMAP_AREA);
   map_pages(kernel_top_table,
-            bitmap_area,
-            pg_phys_to_virt(bitmap_area),
+            area->start,
+            pg_phys_to_virt(area->start),
             BIT_PRESENT | BIT_WRITE, 
-            pmm_area->bitmap_area.npages);
+            area->npages);
 
+  area = pmm_get_area_addr(PMM_RAMFS_AREA);
   map_pages(kernel_top_table,
-            ramfs_area,
-            pg_phys_to_virt(ramfs_area),
+            area->start,
+            pg_phys_to_virt(area->start),
             BIT_PRESENT | BIT_WRITE,
-            pmm_area->ramfs_area.npages);
+            area->npages);
 
   map_kernel();
 }

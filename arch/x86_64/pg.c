@@ -56,6 +56,11 @@ void pg_switch_top_table(phys_addr_t top_table)
   cr_set_cr3((u64) top_table);
 }
 
+phys_addr_t pg_get_top_table(void)
+{
+  return cr_get_cr3();
+}
+
 void pg_set_table_entry_pa(struct table_entry *entry, phys_addr_t addr)
 {
   entry->phys_addr = addr >> 12;

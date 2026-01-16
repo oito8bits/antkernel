@@ -15,19 +15,22 @@ struct area
   size_t nentries;
 };
 
-struct pmm_area
+enum pmm_area_type
 {
-  struct area available_area[AVAILABLE_AREAS];
-  struct area ramfs_area;
-  struct area table_area;
-  struct area bitmap_area;
+  PMM_TABLE_AREA,
+  PMM_BITMAP_AREA,
+  PMM_RAMFS_AREA
 };
 
 void pmm_init_area(struct area *, phys_addr_t, size_t);
 phys_addr_t pmm_alloc_page(struct area *);
 phys_addr_t pmm_alloc_avail_page(void);
 s64 pmm_alloc_addr(phys_addr_t);
+void pmm_alloc_range(phys_addr_t addr, size_t pages);
+phys_addr_t pmm_alloc_table(void);
+void pmm_free_table(phys_addr_t);
+void *pmm_get_area_addr(enum pmm_area_type);
 void pmm_free_page(struct area *, phys_addr_t);
-void pmm_init(struct pmm_area *);
+void pmm_init(void);
 
 #endif

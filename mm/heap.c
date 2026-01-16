@@ -101,7 +101,7 @@ void heap_free(void *ptr)
 void heap_init(void)
 {
   void *start_addr = (void *) KERNEL_BASE;
-  size_t size = 16 * (1 << 10); /* 16 KiB */
+  size_t size = 32 * (1 << 10); /* 16 KiB */
   void *end_addr = start_addr + size;
   struct block *first_block = start_addr;
 

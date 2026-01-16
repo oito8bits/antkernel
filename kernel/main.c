@@ -11,25 +11,20 @@
 
 int kmain(void)
 {
-  struct pmm_area pmm_area;
-  
-  pmm_init(&pmm_area);
-  map_init(&pmm_area.table_area);
-  vmm_init(&pmm_area);
+  pmm_init();
+  vmm_init();
   fb_init();
   acpi_init();
   heap_init();
   vfs_init();
   sched_init();
   int_init();
-
 // Just testing....
 #include <libk/kprintf.h>
   vfs_mount("", "/dev/", "devfs");
   vfs_mount("/dev/ramdisk", "/", "ramfs");
-  //int fd = exec_execve("/userland/shell", NULL, NULL);
+  int fd = exec_execve("/userland/shell", NULL, NULL);
   //if(fd < 0)
-    kprintf("Failed to open file.\n");
-  kprintf("I'm still alive."); 
+  int_timer_enable();
   return 0;
 }

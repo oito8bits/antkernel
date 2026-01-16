@@ -14,6 +14,12 @@ enum process_status
   DEAD
 };
 
+enum sched_space_type
+{
+  KERNEL_SPACE,
+  USER_SPACE,
+};
+
 struct sched_thread
 {
   struct list_head head;
@@ -37,7 +43,7 @@ struct sched_process
 void sched(struct isr_context *context);
 struct sched_process *sched_create_process(const char *);
 void sched_destroy_process(struct sched_process *);
-struct sched_thread *sched_create_thread(struct sched_process *, const char *, void *, void *);
+struct sched_thread *sched_create_thread(struct sched_process *, const char *, void *, void *, enum sched_space_type);
 void sched_destroy_thread(struct sched_thread *);
 void sched_init(void);
 

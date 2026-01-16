@@ -8,6 +8,5 @@
 void map(struct table_entry *, phys_addr_t, void *, u64);
 void map_pages(struct table_entry *, phys_addr_t, void *, u64, u64);
 void unmap(struct table_entry *, void *);
-void map_init(struct area *area);
 
 #endif

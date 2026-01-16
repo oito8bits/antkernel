@@ -4,8 +4,6 @@
 #include <libk/stddef.h>
 #include <mm/pmm.h>
 
-struct area *table_area;
-
 static size_t get_idx(void *virt_addr, size_t level)
 {
   switch(level)
@@ -32,15 +30,15 @@ static struct table_entry *get_table_virt_addr(struct table_entry *table, void *
   return (struct table_entry *) pg_phys_to_virt(table_phys_addr);
 }
 
-static struct table_entry *create_entry(struct table_entry *table, void *virt_addr, size_t level)
+static struct table_entry *create_entry(struct table_entry *table, void *virt_addr, size_t level, u64 attr)
 {
   struct table_entry *entry = get_table_entry(table, virt_addr, level);
   phys_addr_t table_pa = pg_get_table_entry_pa(entry);
   if(!entry->p)
   {
-    table_pa = (phys_addr_t) pmm_alloc_page(table_area);
+    table_pa = (phys_addr_t) pmm_alloc_table();
     memset((void *) pg_phys_to_virt(table_pa), 0, PAGE_SIZE);
-    pg_set_table_entry(entry, table_pa, BIT_PRESENT | BIT_WRITE);
+    pg_set_table_entry(entry, table_pa, attr);
     table[get_idx(virt_addr, level)] = *entry;
   }
   
@@ -60,9 +58,9 @@ void map(struct table_entry *table, phys_addr_t phys_addr, void *virt_addr, u64 
   struct table_entry *l4, *l3, *l2;
   struct page_entry *l1;
   l4 = table;
-  l3 = create_entry(l4, virt_addr, 4);
-  l2 = create_entry(l3, virt_addr, 3);
-  l1 = (struct page_entry *) create_entry(l2, virt_addr, 2);
+  l3 = create_entry(l4, virt_addr, 4, attr);
+  l2 = create_entry(l3, virt_addr, 3, attr);
+  l1 = (struct page_entry *) create_entry(l2, virt_addr, 2, attr);
   set_page_entry(l1, virt_addr, phys_addr, attr);
 }
 
@@ -100,22 +98,21 @@ void unmap(struct table_entry *table, void *virt_addr)
 
   size_t idx = get_idx(virt_addr, 2);
   l2[idx].p = 0;
-  pmm_free_page(table_area, pg_virt_to_phys(l1));
+  pmm_free_table(pg_virt_to_phys(l1));
   if(!is_unused_table(l2))
     return;
   
   idx = get_idx(virt_addr, 3);
   l3[idx].p = 0;
-  pmm_free_page(table_area, pg_virt_to_phys(l2));
+  pmm_free_table(pg_virt_to_phys(l2));
   if(!is_unused_table(l3))
     return;
 
   idx = get_idx(virt_addr, 4);
   l3[idx].p = 0;
-  pmm_free_page(table_area, pg_virt_to_phys(l3));
+  pmm_free_table(pg_virt_to_phys(l3));
 }
 
 void map_init(struct area *area)
 {
-  table_area = area;
 }
