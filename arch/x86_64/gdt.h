@@ -6,7 +6,7 @@
 #define GDT_ENTRY(limit, base, segment_type, segment_dpl, flags)  \
 { \
   (limit) & 0xffff, \
-  (base) & 0xffff, \
+  (base) & 0xffffff, \
   segment_type, \
   (flags) & 0x1, \
   segment_dpl, \
@@ -16,7 +16,9 @@
   (flags) >> 0x2 & 0x1, \
   (flags) >> 0x3 & 0x1, \
   (flags) >> 0x4 & 0x1, \
-  (base) >> 16 & 0xff \
+  (base) >> 16 & 0xff, \
+  (base) >> 32 & 0xffffffff, \
+  0 \
 }
 
 struct gdt_entry
@@ -32,7 +34,9 @@ struct gdt_entry
   u32 l: 1;
   u32 db: 1;
   u32 g: 1;
-  u8  hbase;
+  u8  mbase;
+  u32 hbase;
+  u32 reserved;
 } __attribute__((packed, __aligned__(8)));
 
 struct gdt_register

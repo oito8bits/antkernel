@@ -12,7 +12,7 @@ void idt_load(void)
 {
   int i;
   for(i = 0; i < 35; i++)
-    idt[i] = (struct idt_entry) IDT_ENTRY((u64) (&isr_handlers)[i], 0x8, 0x0, 0xe, 0x0, 0x1);
+    idt[i] = (struct idt_entry) IDT_ENTRY((u64) (&isr_handlers)[i], 0x10, 0x0, 0xe, 0x0, 0x1);
 
   idtr.limit = sizeof(idt) - 1;
   idtr.base = (u64) idt;
