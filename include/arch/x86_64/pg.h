@@ -3,14 +3,25 @@
 
 #include <ant/types.h>
 #include <ant/boot.h>
+#include <ant/unit.h>
 
+#define PAGE_SIZE 4096
+
+#define STACK_SIZE UNIT_KiB(16)
+
+// User Space
+#define USER_STACK_BASE 0x7fffffffc000
+#define USER_STACK_TOP USER_STACK_BASE + STACK_SIZE - PAGE_SIZE
+
+// Kernel Space
 #define KERNEL_BASE 0xFFFF800000000000
 
 #define KERNEL_DEFAULT_SIZE (1 << 13)
 
 #define KERNEL_ELF_BASE 0xFFFFFFFF80000000ULL
 
-#define PAGE_SIZE 4096
+#define KERNEL_STACK_BASE 0xffffffffffffbfffULL
+#define KERNEL_STACK_TOP KERNEL_STACK_BASE + STACK_SIZE - PAGE_SIZE
 
 #define BIT_PRESENT       (1ULL << 0)
 #define BIT_WRITE         (1ULL << 1)

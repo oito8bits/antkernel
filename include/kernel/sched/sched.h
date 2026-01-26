@@ -3,7 +3,7 @@
 
 #include <ant/types.h>
 #include <ant/list.h>
-#include <arch/isr.h>
+#include <arch/x86_64/context.h>
 #include <kernel/elf.h>
 #include <mm/vmm.h>
 
@@ -24,7 +24,7 @@ struct sched_thread
 {
   struct list_head head;
   size_t tid;
-  struct isr_context context;
+  struct context context;
   void *rsp0;
   enum process_status status;
   struct sched_process *parent;
@@ -40,7 +40,7 @@ struct sched_process
   struct elf_64 elf;
 };
 
-void sched(struct isr_context *context);
+void sched(struct context *context);
 struct sched_process *sched_create_process(const char *);
 void sched_destroy_process(struct sched_process *);
 struct sched_thread *sched_create_thread(struct sched_process *, const char *, void *, void *, enum sched_space_type);

@@ -5,7 +5,7 @@
 #include <drivers/keyboard/ps2.h>
 #include <kernel/sched/sched.h>
 
-void isr_handler_c(struct isr_context *ctx)
+void isr_handler_c(struct context *ctx)
 {
   int isr_number = ctx->isr_number;
   

@@ -7,7 +7,7 @@
 { \
   (limit) & 0xffff, \
   (base) & 0xffffff, \
-  segment_type, \
+  segment_type & 0xf, \
   (flags) & 0x1, \
   segment_dpl, \
   (flags) >> 0x1 & 0x1, \
@@ -17,8 +17,6 @@
   (flags) >> 0x3 & 0x1, \
   (flags) >> 0x4 & 0x1, \
   (base) >> 16 & 0xff, \
-  (base) >> 32 & 0xffffffff, \
-  0 \
 }
 
 struct gdt_entry
@@ -34,9 +32,7 @@ struct gdt_entry
   u32 l: 1;
   u32 db: 1;
   u32 g: 1;
-  u8  mbase;
-  u32 hbase;
-  u32 reserved;
+  u8  hbase;
 } __attribute__((packed, __aligned__(8)));
 
 struct gdt_register
