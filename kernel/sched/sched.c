@@ -99,7 +99,8 @@ struct sched_thread *sched_create_thread(struct sched_process *process, const ch
   thread->context.rip = (u64) entrypoint;
   thread->context.rdi = (u64) arg;
   thread->context.rbp = 0;
-  thread->rsp0 = heap_malloc(4096) + 4096;
+  thread->rsp0 = heap_malloc(UNIT_KiB(16)) + UNIT_KiB(16);
+  //thread->rsp0 = heap_malloc(UNIT_KiB(4)) + UNIT_KiB(4);
   kprintf("thread->rsp0: %lx\n", thread->rsp0);
   thread->parent = process;
 
