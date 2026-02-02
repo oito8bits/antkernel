@@ -1,9 +1,13 @@
 #include <mm/heap.h>
 #include <mm/vmm.h>
 #include <libk/kprintf.h>
+#include <ant/align.h>
 
 static struct block heap_head;
 extern u64 kernel_top_table;
+
+void *heap_base;
+size_t heap_size;
 
 static void colapse_free_blocks(void)
 {
@@ -20,31 +24,45 @@ static void colapse_free_blocks(void)
   }
 }
 
+__attribute__((noinline))
+static struct block *resize_heap(size_t size)
+{
+  void *heap_end = heap_base + heap_size;
+  if(IS_ALIGN(size, PAGE_SIZE))
+    size = ALIGNUP(size, PAGE_SIZE);
+
+  vmm_map((struct table_entry *) &kernel_top_table, heap_end, size / PAGE_SIZE, BIT_PRESENT | BIT_WRITE);
+
+  struct block *last_block = (struct block *) heap_head.head.prev;
+  last_block->size += size;
+
+  return last_block;
+}
+
+__attribute__((noinline))
 static struct block *search_first_free_block(size_t size)
 {
-  struct block *p = (struct block *) heap_head.head.next;
-  struct list_head *pos = 0;
+  struct block *p = 0;
+  struct list_head *pos;
   list_for_each(pos, &heap_head.head)
   {
     p = (struct block *) pos;
-    if(p->free)
+    if(!p->free)
+      continue;
+
+    if(size <= p->size + sizeof(struct block))
+      break;
+
+    if(list_is_head(p->head.next, &heap_head.head))
     {
-      if(!list_is_head(pos->next, &heap_head.head))
-      {
-        if(size <= p->size + sizeof(struct block))
-          break;
-      }
-      else
-      {
-        if(size <= p->size)
-          break;
-      }
-    }    
+      p = resize_heap(size + sizeof(struct block));
+      break;
+    }
   }
 
   if(!list_is_head(&p->head, &heap_head.head))
     return p;
-  
+
   return 0;
 }
 
@@ -98,25 +116,24 @@ void heap_free(void *ptr)
 
 void heap_init(void)
 {
-  void *start_addr = (void *) KERNEL_BASE;
-  size_t size = 32 * (1 << 10); /* 16 KiB */
-  void *end_addr = start_addr + size;
-  struct block *first_block = start_addr;
+  heap_base = (void *) KERNEL_HEAP_BASE;
+  heap_size = UNIT_KiB(32); /* 16 KiB */
+  void *end_addr = heap_base + heap_size;
+  struct block *first_block = heap_base;
 
   vmm_map((struct table_entry *) &kernel_top_table,
-          start_addr,
-          size / PAGE_SIZE,
+          heap_base,
+          heap_size / PAGE_SIZE,
           BIT_PRESENT | BIT_WRITE);
 
-  first_block->size = size - sizeof(struct block) * 2;
+  first_block->size = heap_size - sizeof(struct block);
   first_block->free = 1;
 
-  struct block *last_block = (struct block *) ((void *) first_block + size
+  struct block *last_block = (struct block *) ((void *) first_block + heap_size
                              - sizeof(struct block));
   *last_block = (struct block) {0};
   
   list_head_init(&heap_head.head);
 
   list_add(&first_block->head, &heap_head.head);
-  list_add(&last_block->head, &first_block->head);
 }
