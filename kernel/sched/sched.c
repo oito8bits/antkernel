@@ -18,7 +18,7 @@ static u64 create_stack(struct table_entry *top_table)
 
 static void destroy_stack(struct table_entry *top_table, u64 addr)
 {
-  //TODO: Unmap stack.
+  vmm_unmap(top_table, (void *) USER_STACK_BASE, STACK_SIZE / PAGE_SIZE);
 }
 
 static void switch_top_table(struct sched_thread *thread)
