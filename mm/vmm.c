@@ -91,6 +91,9 @@ void vmm_kappend_kernel_space(struct table_entry *top_table)
 
 void vmm_unmap(struct table_entry *top_table, void *virt_addr, size_t npages)
 {
+  size_t i;
+  for(i = 0; i < npages; i++)
+    unmap(top_table, virt_addr + i * PAGE_SIZE);
 }
 
 void vmm_init(void)
