@@ -11,7 +11,7 @@ size_t last_free_tid;
 
 static u64 create_stack(struct table_entry *top_table)
 {
-  vmm_map(top_table, (void *) USER_STACK_BASE, STACK_SIZE / PAGE_SIZE, BIT_PRESENT | BIT_WRITE | BIT_USER);
+  vmm_map(top_table, 0, (void *) USER_STACK_BASE, STACK_SIZE / PAGE_SIZE, USER_DATA);
   
   return USER_STACK_TOP;
 }
@@ -100,7 +100,6 @@ struct sched_thread *sched_create_thread(struct sched_process *process, const ch
   thread->context.rdi = (u64) arg;
   thread->context.rbp = 0;
   thread->rsp0 = heap_malloc(UNIT_KiB(16)) + UNIT_KiB(16);
-  //thread->rsp0 = heap_malloc(UNIT_KiB(4)) + UNIT_KiB(4);
   kprintf("thread->rsp0: %lx\n", thread->rsp0);
   thread->parent = process;
 

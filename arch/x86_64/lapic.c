@@ -62,10 +62,11 @@ void lapic_init(void)
 {
   phys_addr_t apic_phys_base = rdmsr(IA32_APIC_BASE) & ~0xfff;
   lapic_base = pg_phys_to_virt(apic_phys_base);
-  vmm_kmap(apic_phys_base,
-           lapic_base,
-           BIT_PRESENT | BIT_WRITE | BIT_CACHE_DISABLE | (1UL << 8),
-           KERNEL_DEFAULT_SIZE / PAGE_SIZE);
+  vmm_map(0,
+          apic_phys_base,
+          lapic_base,
+          KERNEL_DEFAULT_SIZE / PAGE_SIZE,
+          KERNEL_DATA | BIT_CACHE_DISABLE | BIT_GLOBAL);
   lapic_write_reg(LAPIC_SPURIOUS, lapic_read_reg(LAPIC_SPURIOUS) | (1 << 8) | 0xff);
   calculate_ticks_per_10ms();
   disable_pic8259a();

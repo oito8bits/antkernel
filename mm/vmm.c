@@ -35,51 +35,48 @@ static void map_section(void *start_addr,
   if(IS_ALIGN(size, PAGE_SIZE))
     size = ALIGNUP(size, PAGE_SIZE);
 
-  map_pages(kernel_top_table, 
-            pg_virt_to_elf(start_addr),
-            start_addr,
-            attr,
-            size / PAGE_SIZE);
+  vmm_map(0, 
+          pg_virt_to_elf(start_addr),
+          start_addr,
+          size / PAGE_SIZE,
+          attr);
 }
 
 static void map_kernel(void)
 {
-  map_section(&_start_text, &_end_text, BIT_PRESENT | BIT_WRITE);
-  map_section(&_start_data, &_end_data, BIT_PRESENT | BIT_WRITE);
-  map_section(&_start_rodata, &_end_rodata, BIT_PRESENT | BIT_WRITE);
-  map_section(&_start_stack, &_end_stack, BIT_PRESENT | BIT_WRITE);
-  map_section(&_start_bss, &_end_bss, BIT_PRESENT | BIT_WRITE);
-  map_section(&_start_brk, &_end_brk, BIT_PRESENT | BIT_WRITE);
+  map_section(&_start_text, &_end_text, KERNEL_DATA);
+  map_section(&_start_data, &_end_data, KERNEL_DATA);
+  map_section(&_start_rodata, &_end_rodata, KERNEL_DATA);
+  map_section(&_start_stack, &_end_stack, KERNEL_DATA);
+  map_section(&_start_bss, &_end_bss, KERNEL_DATA);
+  map_section(&_start_brk, &_end_brk, KERNEL_DATA);
 
   pg_switch_top_table(pg_virt_to_elf(&kernel_top_table));
 }
 
-void vmm_map(struct table_entry *top_table, void *virt_addr, size_t npages, u64 attr)
+void vmm_map(struct table_entry *top_table,
+             phys_addr_t phys_addr,
+             void *virt_addr, 
+             size_t npages,
+             u64 attr)
 {
+  if(!top_table)
+    top_table = kernel_top_table;
+
+  phys_addr_t paddr;
   size_t i;
   for(i = 0; i < npages; i++)
-    map(top_table, 
-        pmm_alloc_avail_page(), 
+  {
+    if(!phys_addr)
+      paddr = pmm_alloc_avail_page();
+    else
+      paddr = phys_addr + i * PAGE_SIZE;
+
+    map(top_table,
+        paddr,
         virt_addr + i * PAGE_SIZE, 
         attr);
-}
-
-void vmm_kmap(phys_addr_t phys_addr, void *virt_addr, u64 attr, size_t npages)
-{
-  map_pages((void *) kernel_top_table,
-            phys_addr,
-            virt_addr,
-            attr,
-            npages);
-}
-
-void vmm_kmap_pdata(phys_addr_t phys_addr, void *virt_addr, size_t npages)
-{
-  map_pages((void *) kernel_top_table,
-            phys_addr,
-            virt_addr,
-            BIT_PRESENT | BIT_WRITE,
-            npages);
+  }
 }
 
 void vmm_kappend_process_space(struct table_entry *top_table)
@@ -92,9 +89,8 @@ void vmm_kappend_kernel_space(struct table_entry *top_table)
   memcpy(&top_table[256], &kernel_top_table[256], sizeof(struct table_entry) * 256);
 }
 
-void vmm_unmap(struct table_entry *top_table, void *virt_addr)
+void vmm_unmap(struct table_entry *top_table, void *virt_addr, size_t npages)
 {
-
 }
 
 void vmm_init(void)
@@ -104,25 +100,25 @@ void vmm_init(void)
   struct area *area;
  
   area = pmm_get_area_addr(PMM_TABLE_AREA);
-  map_pages(kernel_top_table,
-            area->start,
-            pg_phys_to_virt(area->start),
-            BIT_PRESENT | BIT_WRITE,
-            area->npages);
+  vmm_map(0,
+          area->start,
+          pg_phys_to_virt(area->start),
+          area->npages,
+          KERNEL_DATA);
 
   area = pmm_get_area_addr(PMM_BITMAP_AREA);
-  map_pages(kernel_top_table,
-            area->start,
-            pg_phys_to_virt(area->start),
-            BIT_PRESENT | BIT_WRITE, 
-            area->npages);
+  vmm_map(0,
+          area->start,
+          pg_phys_to_virt(area->start),
+          area->npages,
+          KERNEL_DATA);
 
   area = pmm_get_area_addr(PMM_RAMFS_AREA);
-  map_pages(kernel_top_table,
-            area->start,
-            pg_phys_to_virt(area->start),
-            BIT_PRESENT | BIT_WRITE,
-            area->npages);
+  vmm_map(0,
+          area->start,
+          pg_phys_to_virt(area->start),
+          area->npages,
+          KERNEL_DATA);
 
   map_kernel();
 }

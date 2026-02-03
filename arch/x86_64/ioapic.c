@@ -85,10 +85,11 @@ void ioapic_init(void)
   ioapic_base = pg_phys_to_virt(ioapic_phys);
   
   // Map ioapic register area.
-  vmm_kmap(ioapic_phys,
-           (void *) ioapic_base,
-           BIT_PRESENT | BIT_WRITE | BIT_CACHE_DISABLE | (1UL << 8),
-           PAGE_SIZE);
+  vmm_map(0,
+          ioapic_phys,
+          (void *) ioapic_base,
+          PAGE_SIZE,
+          KERNEL_DATA | BIT_CACHE_DISABLE | BIT_GLOBAL);
 
   iored_init();
 }

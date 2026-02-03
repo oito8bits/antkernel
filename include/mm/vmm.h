@@ -17,9 +17,7 @@ struct varea
   size_t npages;
 };
 
-void vmm_map(struct table_entry *, void *, size_t, u64);
-void vmm_kmap(phys_addr_t phys_addr, void *virt_addr, u64 attr, size_t npages);
-void vmm_kmap_pdata(phys_addr_t, void *, size_t);
+void vmm_map(struct table_entry *, phys_addr_t, void *, size_t, u64);
 void vmm_kappend_process_space(struct table_entry *);
 void vmm_kappend_kernel_space(struct table_entry *);
 void vmm_init(void);

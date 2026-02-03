@@ -64,13 +64,6 @@ void map(struct table_entry *table, phys_addr_t phys_addr, void *virt_addr, u64 
   set_page_entry(l1, virt_addr, phys_addr, attr);
 }
 
-void map_pages(struct table_entry *table, phys_addr_t phys_addr, void *virt_addr, u64 attr, u64 npages)
-{
-  size_t i;
-  for(i = 0; i < npages; i++)
-    map(table, phys_addr + i * PAGE_SIZE, virt_addr + i * PAGE_SIZE, attr);
-}
-
 bool is_unused_table(struct table_entry *table)
 {
   size_t i, nentries = sizeof(struct page_entry);

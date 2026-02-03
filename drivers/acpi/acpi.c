@@ -1,5 +1,4 @@
 #include <acpi/acpi.h>
-#include <arch/map.h>
 #include <pg.h>
 #include <mm/vmm.h>
 #include <ant/boot.h>
@@ -33,9 +32,9 @@ void map_sdt_tables(void)
   struct sdt *table;
   for(i = 0; i < ntables; i++)
   {
-    vmm_kmap_pdata((phys_addr_t) tables[i],
-                   pg_phys_to_virt(tables[i]),
-                   1);
+    vmm_map(0, (phys_addr_t) tables[i],
+            pg_phys_to_virt(tables[i]),
+            1, KERNEL_DATA);
 
     table = pg_phys_to_virt(tables[i]);
     
@@ -43,9 +42,10 @@ void map_sdt_tables(void)
       madt = table;
 
     if(table->length > PAGE_SIZE)
-      vmm_kmap_pdata((phys_addr_t) tables[i],
-                     table,
-                     table->length / PAGE_SIZE);
+      vmm_map(0, (phys_addr_t) tables[i],
+              table,
+              table->length / PAGE_SIZE,
+              KERNEL_DATA);
   }
 }
 
@@ -75,7 +75,7 @@ void acpi_init()
   
   phys_addr_t table_phys = (phys_addr_t) boot_info->acpi;
   void *table = pg_phys_to_virt(table_phys);
-  vmm_kmap_pdata(table_phys, table, 1);
+  vmm_map(0, table_phys, table, 1, KERNEL_DATA);
 
   if(is_xsdp(table) == false)
     return;
@@ -84,7 +84,7 @@ void acpi_init()
 
   table_phys = (phys_addr_t) xsdp->xsdt_address;
   table = pg_phys_to_virt(table_phys);
-  vmm_kmap_pdata(table_phys, table, 1);
+  vmm_map(0, table_phys, table, 1, KERNEL_DATA);
 
   if(is_xsdt(table) == false)
     return;

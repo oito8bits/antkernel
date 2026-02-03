@@ -31,7 +31,7 @@ static struct block *resize_heap(size_t size)
   if(IS_ALIGN(size, PAGE_SIZE))
     size = ALIGNUP(size, PAGE_SIZE);
 
-  vmm_map((struct table_entry *) &kernel_top_table, heap_end, size / PAGE_SIZE, BIT_PRESENT | BIT_WRITE);
+  vmm_map(0, 0, heap_end, size / PAGE_SIZE, BIT_PRESENT | BIT_WRITE);
 
   struct block *last_block = (struct block *) heap_head.head.prev;
   last_block->size += size;
@@ -121,7 +121,7 @@ void heap_init(void)
   void *end_addr = heap_base + heap_size;
   struct block *first_block = heap_base;
 
-  vmm_map((struct table_entry *) &kernel_top_table,
+  vmm_map(0, 0,
           heap_base,
           heap_size / PAGE_SIZE,
           BIT_PRESENT | BIT_WRITE);

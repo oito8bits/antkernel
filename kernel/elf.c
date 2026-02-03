@@ -60,7 +60,7 @@ int elf_load(struct elf_64 *elf, struct table_entry *table)
     pages /= PAGE_SIZE;
 
     kprintf("vaddr: %#lx, pages: %i, size: %#lx, type: %li\n", vaddr, pages, size, elf->program_header[i].type);
-    vmm_map(table, (void *) vaddr, pages , BIT_PRESENT | BIT_WRITE | BIT_USER);
+    vmm_map(table, 0, (void *) vaddr, pages , USER_DATA);
     vmm_kappend_process_space(table);
     //tlb_flush();
     vfs_lseek(elf->fd, elf->program_header[i].offset, VFS_SEEK_SET);

@@ -27,6 +27,12 @@
 #define BIT_CACHE_DISABLE (1ULL << 4)
 #define BIT_ACCESSED      (1ULL << 5)
 #define BIT_PAGE_SIZE     (1ULL << 7)
+#define BIT_GLOBAL        (1ULL << 8)
+
+#define KERNEL_CODE (BIT_PRESENT)
+#define KERNEL_DATA (BIT_PRESENT | BIT_WRITE)
+#define USER_CODE (BIT_PRESENT | BIT_USER)
+#define USER_DATA (BIT_PRESENT | BIT_WRITE | BIT_USER)
 
 struct table_entry
 {

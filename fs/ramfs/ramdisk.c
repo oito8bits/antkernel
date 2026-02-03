@@ -35,7 +35,7 @@ void ramdisk_init(void)
   struct boot_info *boot_info = boot_get_info();
 
   phys_addr_t ramfs_phys = (phys_addr_t) boot_info->ramfs.base;
-  vmm_kmap_pdata(ramfs_phys, pg_phys_to_virt(ramfs_phys), boot_info->ramfs.size / PAGE_SIZE);
+  vmm_map(0, ramfs_phys, pg_phys_to_virt(ramfs_phys), boot_info->ramfs.size / PAGE_SIZE, KERNEL_DATA);
   
   ramdisk_base =  pg_phys_to_virt(ramfs_phys);
 

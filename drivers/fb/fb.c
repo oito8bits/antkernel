@@ -55,9 +55,10 @@ static void draw_char(u8 c)
 
 static void map_frame_buffer(uintptr_t phys_base)
 {
-  vmm_kmap_pdata(phys_base,
-                 (void *) FB_VIRTUAL_BASE_ADDR,
-                 width * height * 4 / PAGE_SIZE);
+  vmm_map(0, phys_base,
+          (void *) FB_VIRTUAL_BASE_ADDR,
+          width * height * 4 / PAGE_SIZE,
+          KERNEL_DATA);
 }
 
 void fb_scrollup(void)
