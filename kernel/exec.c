@@ -15,5 +15,7 @@ int exec_execve(const char *path, const char *arg, const char *env)
   process->elf.fd = fd;
   elf_parse(&process->elf);
   elf_load(&process->elf, process->top_table);
-  struct sched_thread *thread = sched_create_thread(process, "idle thread", (void *) process->elf.header.entry, NULL, USER_SPACE);
+  sched_create_thread(process, "idle thread", (void *) process->elf.header.entry, NULL, USER_SPACE);
+
+  return 0;
 }
