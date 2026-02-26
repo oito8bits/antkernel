@@ -2,7 +2,6 @@
 #include <libk/string.h>
 #include <mm/heap.h>
 #include <mm/vmm.h>
-#include <libk/kprintf.h>
 
 struct sched_process processes;
 struct sched_thread *current_thread;
@@ -100,7 +99,6 @@ struct sched_thread *sched_create_thread(struct sched_process *process, const ch
   thread->context.rdi = (u64) arg;
   thread->context.rbp = 0;
   thread->rsp0 = heap_malloc(UNIT_KiB(16)) + UNIT_KiB(16);
-  kprintf("thread->rsp0: %lx\n", thread->rsp0);
   thread->parent = process;
 
   list_add(&thread->head, &process->threads.head);

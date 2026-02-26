@@ -38,8 +38,6 @@ extern void tlb_flush(void);
 int elf_load(struct elf_64 *elf, struct table_entry *table)
 {
   size_t table_size = sizeof(struct table_entry) * 512;
-#include <libk/kprintf.h> 
-  kprintf("phnum: %li\n", elf->header.phnum);
   size_t i;
   for(i = 0; i < elf->header.phnum; i++)
   {
@@ -59,7 +57,6 @@ int elf_load(struct elf_64 *elf, struct table_entry *table)
       pages = ALIGNUP(pages, PAGE_SIZE);
     pages /= PAGE_SIZE;
 
-    kprintf("vaddr: %#lx, pages: %i, size: %#lx, type: %li\n", vaddr, pages, size, elf->program_header[i].type);
     vmm_map(table, 0, (void *) vaddr, pages , USER_DATA);
     vmm_kappend_process_space(table);
     //tlb_flush();
