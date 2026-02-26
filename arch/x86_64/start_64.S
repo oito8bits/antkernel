@@ -13,6 +13,16 @@
 .section .text
 _start:
   cli
+
+# Enable SSE.
+  movq  %cr0, %rax
+  andw  $0xfffb, %ax
+  orw   $0x2, %ax
+  movq  %rax, %cr0
+  movq  %cr4, %rax
+  orw   $(3 << 9), %ax
+  movq  %rax, %cr4
+
   callq boot_init
   movq  $_end_stack, %rsp
   leaq  early_top_table(%rip), %rax
