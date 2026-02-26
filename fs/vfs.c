@@ -3,6 +3,7 @@
 #include <libk/string.h>
 #include <fs/ramfs/ramfs.h>
 #include <fs/devfs/devfs.h>
+#include <fs/devpts/devpts.h>
 #include <fs/mp.h>
 
 struct vfs_fd file_descriptors[4096];
@@ -87,14 +88,12 @@ int vfs_mount(char *device, char *target, char *fs_type)
 {
   struct mountpoint *mp = mp_create(device, target, fs_type);
   mp->dev_fd = vfs_open(device, 0); 
-  mp->ops->mount(mp);
 }
 
 int vfs_umount(char *target)
 {
   struct mountpoint *mp = mp_search(target);
   vfs_close(mp->dev_fd);
-  mp->ops->umount(mp);
 }
 
 int vfs_init(void)
@@ -107,6 +106,10 @@ int vfs_init(void)
 
   devfs_init();
   ramfs_init();
+  devpts_init();
+  
+  file_descriptors[1].mp = mp_search("/dev/pts/");
+  file_descriptors[1].free = 1;
 
   return 0;
 }

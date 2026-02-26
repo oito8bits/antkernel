@@ -1,6 +1,7 @@
 #include <fs/mp.h>
 #include <fs/ramfs/ramfs.h>
 #include <fs/devfs/devfs.h>
+#include <fs/devpts/devpts.h>
 #include <libk/string.h>
 #include <mm/heap.h>
 
@@ -17,6 +18,8 @@ static struct vfs_ops *get_ops(char *fs_type)
     ops = ramfs_get_ops();
   else if(!strcmp(fs_type, "devfs"))
     ops = devfs_get_ops();
+  else if(!strcmp(fs_type, "devpts"))
+    ops = devpts_get_ops();
 
   return ops;
 }

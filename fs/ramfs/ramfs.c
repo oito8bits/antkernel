@@ -1,5 +1,6 @@
 #include <fs/ramfs/ramfs.h>
 #include <fs/ramfs/ramdisk.h>
+#include <fs/mp.h>
 #include <fs/vfs.h>
 #include <mm/vmm.h>
 #include <mm/heap.h>
@@ -125,4 +126,5 @@ int ramfs_umount(struct mountpoint *mp)
 void ramfs_init(void)
 {
   ramdisk_init();
+  vfs_mount("/dev/ramdisk", "/", "ramfs");
 }

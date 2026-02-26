@@ -1,4 +1,5 @@
 #include <fs/devfs/devfs.h>
+#include <fs/mp.h>
 #include <libk/string.h>
 
 static struct dev devs;
@@ -75,4 +76,5 @@ void devfs_unregister(struct dev *dev)
 void devfs_init(void)
 {
   list_head_init(&devs.head);
+  vfs_mount("", "/dev/", "devfs");
 }

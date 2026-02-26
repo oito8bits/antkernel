@@ -1,4 +1,5 @@
 #include <arch/map.h>
+#include <arch/syscall.h>
 #include <mm/pmm.h>
 #include <mm/vmm.h>
 #include <fb/fb.h>
@@ -8,6 +9,12 @@
 #include <fs/vfs.h>
 #include <kernel/exec.h>
 #include <kernel/sched/sched.h>
+
+void init(void)
+{
+  exec_execve("/userland/shell", NULL, NULL);
+  int_timer_enable();
+}
 
 int kmain(void)
 {
@@ -19,12 +26,8 @@ int kmain(void)
   vfs_init();
   sched_init();
   int_init();
-// Just testing....
-#include <libk/kprintf.h>
-  vfs_mount("", "/dev/", "devfs");
-  vfs_mount("/dev/ramdisk", "/", "ramfs");
-  int fd = exec_execve("/userland/shell", NULL, NULL);
-  //if(fd < 0)
-  int_timer_enable();
+  syscall_init();
+  init();
+ 
   return 0;
 }
