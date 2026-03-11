@@ -1,9 +1,16 @@
 .code64
 
 .extern syscall_table
+.extern _end_stack
 .global entry
 .section .text
 entry:
+  swapgs
+
+  movq %rsp, %gs:0x0
+  movq %gs:0x8, %rsp
+  movq 4(%rsp), %rsp
+
   pushq %rdi
   pushq %rsi
   pushq %rdx
@@ -36,5 +43,9 @@ entry:
   popq  %rdx
   popq  %rsi
   popq  %rdi
+
+  movq %gs:0x0, %rsp 
+
+  swapgs
 
   sysret
