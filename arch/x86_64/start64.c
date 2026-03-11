@@ -4,6 +4,7 @@
 #include "gdt.h"
 #include <mm/early_heap.h>
 #include "idt.h"
+#include "percpu.h"
 
 extern u8 _start_brk;
 extern u8 _end_brk;
@@ -15,5 +16,7 @@ int start64(void)
   early_heap_init(&_start_brk, &_end_brk - &_start_brk);
   gdt_load();
   idt_load();
+  percpu_init();
+
   return 0;
 }
