@@ -104,12 +104,16 @@ int vfs_init(void)
   for(i = 0; i < 4096; i++)
     file_descriptors[i].free = 0;
 
+  file_descriptors[0].free = 1; 
+  file_descriptors[1].free = 1;
+
   devfs_init();
   ramfs_init();
   devpts_init();
   
-  file_descriptors[1].mp = mp_search("/dev/pts/");
-  file_descriptors[1].free = 1;
-
+  void *mp = mp_search("/dev/pts/");
+  file_descriptors[0].mp = mp;
+  file_descriptors[1].mp = mp;
+  
   return 0;
 }

@@ -22,6 +22,9 @@ void syscall_handler(struct context *ctx)
 {
   switch(ctx->rax)
   {
+    case 0:
+      vfs_read(ctx->rdi, (void *) ctx->rsi, ctx->rdx);
+      break;
     case 1:
       vfs_write(ctx->rdi, (void *) ctx->rsi, ctx->rdx);
       break;

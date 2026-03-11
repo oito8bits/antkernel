@@ -6,6 +6,7 @@
 
 struct vfs_ops *devpts_get_ops(void);
 size_t devpts_write(struct vfs_fd *, void *, size_t);
+size_t devpts_read(struct vfs_fd *, void *, size_t);
 void devpts_init(void);
 
 #endif
