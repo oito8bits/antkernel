@@ -4,9 +4,15 @@
 #include <mm/vmm.h>
 
 struct sched_process processes;
+struct sched_process dead_processes;
+
+struct sched_process *next_process;
 struct sched_thread *current_thread;
+
 size_t last_free_pid;
 size_t last_free_tid;
+
+static void sched_idle(void);
 
 static u64 create_stack(struct table_entry *top_table)
 {
@@ -30,15 +36,29 @@ static void switch_top_table(struct sched_thread *thread)
 void sched(struct context *context)
 {
   struct sched_thread *thread;
+  struct list_head *pos;
+  list_for_each(pos, &dead_processes.head)
+  {
+    struct sched_process *dead_process = (struct sched_process * ) pos;
+    if(dead_process == current_thread->parent)
+      continue;
 
-  thread = (struct sched_thread *) current_thread->head.next;
+    sched_destroy_process(dead_process);  
+  }
+ 
+  if(current_thread->status != DEAD) 
+    thread = (struct sched_thread *) current_thread->head.next;
+  else
+    thread = (struct sched_thread *) next_process->threads.head.next;
+
   if(list_is_head(&thread->head, &current_thread->parent->threads.head))
   {
-    struct sched_process *next_process = (struct sched_process *) current_thread->parent->head.next;
-    if(list_is_head(&next_process->head, &processes.head))
-      next_process = (struct sched_process *) next_process->head.next;
-    thread = (struct sched_thread *) next_process->threads.head.next;
+    struct sched_process *next = (struct sched_process *) current_thread->parent->head.next;
+    if(list_is_head(&next->head, &processes.head))
+      next = (struct sched_process *) next->head.next;
+    thread = (struct sched_thread *) next->threads.head.next;
   }
+
   context_copy(&current_thread->context, context);
   current_thread->status = READY;
   current_thread = thread;
@@ -70,7 +90,26 @@ void sched_destroy_process(struct sched_process *process)
 {
   list_del(&process->head);
   pmm_free_table(pg_virt_to_phys(process->top_table));
+ 
+  struct list_head *pos;
+  list_for_each(pos, &process->threads.head)
+    sched_destroy_thread((struct sched_thread *) pos);
+  
   heap_free(process);
+}
+
+void sched_exit(struct sched_process *process)
+{
+  list_del(&process->head);
+  current_thread->status = DEAD;
+  next_process = (struct sched_process *) process->head.next; 
+  list_add(&process->head, &dead_processes.head);
+  sched_idle();
+}
+
+void sched_destroy_curr_process(void)
+{
+  sched_exit(current_thread->parent);
 }
 
 struct sched_thread *sched_create_thread(struct sched_process *process, const char *name, void *entrypoint, void *arg, enum sched_space_type type)
@@ -110,10 +149,11 @@ void sched_destroy_thread(struct sched_thread *thread)
 {
   list_del(&thread->head);
   destroy_stack(thread->parent->top_table, thread->context.rsp);
+  heap_free(thread->rsp0);
   heap_free(thread);
 }
 
-void sched_idle(void)
+static void sched_idle(void)
 {
   while(1)
   {
@@ -124,7 +164,8 @@ void sched_idle(void)
 void sched_init(void)
 {
   list_head_init(&processes.head); 
-  
+  list_head_init(&dead_processes.head);
+ 
   struct sched_process *process = sched_create_process("idle process");
   current_thread = sched_create_thread(process, "main thread", sched_idle, 0, KERNEL_SPACE);  
 }
