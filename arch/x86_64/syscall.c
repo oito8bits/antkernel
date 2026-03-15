@@ -1,6 +1,9 @@
 #include <arch/syscall.h>
 #include <arch/x86_64/context.h>
 #include <fs/vfs.h>
+
+#include <kernel/exit.h>
+
 #include "msr.h"
 
 #define IA32_STAR_MSR 0xC0000081
@@ -27,6 +30,9 @@ void syscall_handler(struct context *ctx)
       break;
     case 1:
       vfs_write(ctx->rdi, (void *) ctx->rsi, ctx->rdx);
+      break;
+    case 60:
+      exit(ctx->rdi);
       break;
   }
 }
