@@ -2,6 +2,7 @@
 #include <arch/x86_64/context.h>
 #include <fs/vfs.h>
 
+#include <kernel/exec.h>
 #include <kernel/exit.h>
 
 #include "msr.h"
@@ -41,6 +42,9 @@ u64 syscall_handler(struct context *ctx)
       break;
     case 8:
       ret = vfs_lseek(ctx->rdi, ctx->rsi, ctx->rdx);
+      break;
+    case 59:
+      ret = exec_execve((const char *) ctx->rdi, (const char *) ctx->rsi, (const char *) ctx->rdx);
       break;
     case 60:
       exit(ctx->rdi);
