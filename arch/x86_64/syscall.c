@@ -21,18 +21,31 @@ void syscall_init()
   wrmsr(IA32_EFER_MSR, rdmsr(IA32_EFER_MSR) | (1 << 0));
 }
 
-void syscall_handler(struct context *ctx)
+u64 syscall_handler(struct context *ctx)
 {
+  u64 ret;
+
   switch(ctx->rax)
   {
     case 0:
-      vfs_read(ctx->rdi, (void *) ctx->rsi, ctx->rdx);
+      ret = vfs_read(ctx->rdi, (void *) ctx->rsi, ctx->rdx);
       break;
     case 1:
-      vfs_write(ctx->rdi, (void *) ctx->rsi, ctx->rdx);
+      ret = vfs_write(ctx->rdi, (void *) ctx->rsi, ctx->rdx);
+      break;
+    case 2:
+      ret = vfs_open((const char *) ctx->rdi, ctx->rsi);
+      break;
+    case 6:
+      ret = vfs_close(ctx->rdi);
+      break;
+    case 8:
+      ret = vfs_lseek(ctx->rdi, ctx->rsi, ctx->rdx);
       break;
     case 60:
       exit(ctx->rdi);
       break;
   }
+
+  return ret;
 }
