@@ -25,10 +25,12 @@ entry:
   pushq %r11
   pushq %r10
   pushq %r9
+  pushq %r8
   
   movq  %rsp, %rdi
   call syscall_handler
   
+  popq  %r8
   popq  %r9
   popq  %r10
   popq  %r11

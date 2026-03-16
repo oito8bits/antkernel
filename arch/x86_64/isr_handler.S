@@ -18,10 +18,12 @@ isr_handler:
   pushq %r11
   pushq %r10
   pushq %r9
+  pushq %r8
 
   movq  %rsp, %rdi
   callq isr_handler_c
 
+  popq  %r8
   popq  %r9
   popq  %r10
   popq  %r11

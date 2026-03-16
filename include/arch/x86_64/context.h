@@ -5,6 +5,7 @@
 
 struct context
 {
+  u64 r8;
   u64 r9;
   u64 r10;
   u64 r11;
