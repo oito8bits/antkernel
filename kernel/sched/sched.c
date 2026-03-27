@@ -77,13 +77,18 @@ struct sched_process *sched_create_process(const char *name)
   size_t table_size = sizeof(struct table_entry) * 512;
   new_process->top_table = pg_phys_to_virt(pmm_alloc_table());
   memset(new_process->top_table, 0, table_size);
+  vmm_kappend_kernel_space(new_process->top_table);
   if(new_process->top_table == 0)
     return 0;
   
-  list_add(&new_process->head, &processes.head);
   list_head_init(&new_process->threads.head);
 
   return new_process;
+}
+
+void sched_add_process(struct sched_process *process)
+{
+  list_add(&process->head, &processes.head);
 }
 
 void sched_destroy_process(struct sched_process *process)
@@ -153,6 +158,11 @@ void sched_destroy_thread(struct sched_thread *thread)
   heap_free(thread);
 }
 
+struct sched_process *sched_get_current_process(void)
+{
+  return current_thread->parent; 
+}
+
 static void sched_idle(void)
 {
   while(1)
@@ -167,5 +177,6 @@ void sched_init(void)
   list_head_init(&dead_processes.head);
  
   struct sched_process *process = sched_create_process("idle process");
-  current_thread = sched_create_thread(process, "main thread", sched_idle, 0, KERNEL_SPACE);  
+  current_thread = sched_create_thread(process, "main thread", sched_idle, 0, KERNEL_SPACE);
+  sched_add_process(process); 
 }

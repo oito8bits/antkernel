@@ -4,6 +4,8 @@
 #include <ant/align.h>
 #include <mm/heap.h>
 #include <libk/string.h>
+#include <kernel/sched/sched.h>
+#include <pg.h>
 
 static int is_elf(struct elf_64 *elf)
 {
@@ -17,7 +19,7 @@ int elf_parse(struct elf_64 *elf)
   vfs_read(fd, &elf->header, sizeof(struct elf_header));
   if(!is_elf(elf))
     return -1;
-
+  
   vfs_lseek(fd, elf->header.phoff, VFS_SEEK_SET);
   size_t program_header_size = elf->header.phentsize * elf->header.phnum;
   elf->program_header = heap_malloc(program_header_size);
@@ -58,9 +60,13 @@ int elf_load(struct elf_64 *elf, struct table_entry *table)
     pages /= PAGE_SIZE;
 
     vmm_map(table, 0, (void *) vaddr, pages , USER_DATA);
-    vmm_kappend_process_space(table);
+    pg_switch_top_table(pg_virt_to_phys(table));
     //tlb_flush();
+    
     vfs_lseek(elf->fd, elf->program_header[i].offset, VFS_SEEK_SET);
     vfs_read(elf->fd, (void *) vaddr, size);
+
+    struct sched_process *current_process = sched_get_current_process();
+    pg_switch_top_table(pg_virt_to_phys(current_process->top_table));
   }
 }

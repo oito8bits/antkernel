@@ -36,6 +36,8 @@ static struct block *resize_heap(size_t size)
   struct block *last_block = (struct block *) heap_head.head.prev;
   last_block->size += size;
 
+  heap_size += size;
+
   return last_block;
 }
 

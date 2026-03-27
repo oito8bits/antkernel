@@ -55,6 +55,7 @@ static void alloc_reserved_pages(struct boot_info *boot_info)
     pmm_alloc_addr(base + i);
 }
 
+__attribute__ ((noinline))
 void pmm_init_area(struct area *area, phys_addr_t start, size_t area_npages)
 {
   area->npages = area_npages;
@@ -183,9 +184,13 @@ void pmm_init(void)
 
   // ramfs area.
   phys_addr_t ramfs_addr = (phys_addr_t) boot_info->ramfs.base;
+  size_t ramfs_size = boot_info->ramfs.size;
+  if(IS_ALIGN(ramfs_size, PAGE_SIZE))
+    ramfs_size = ALIGNUP(ramfs_size, PAGE_SIZE);
+
   pmm_init_area(&ramfs_area,
                 ramfs_addr,
-                boot_info->ramfs.size / PAGE_SIZE);
+                ramfs_size / PAGE_SIZE);
 
   // bitmap area.
   phys_addr_t pages_addr = ramfs_addr + boot_info->ramfs.size;

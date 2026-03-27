@@ -55,6 +55,7 @@ int ramfs_open(struct vfs_fd *fd, const char *path, int flags)
   struct ramfs_tar_header *header;
   struct ramfs_fd *ramfs_fd = heap_malloc(sizeof(struct ramfs_fd));
   char buffer[BLOCK_SIZE];
+  
   do
   {
     vfs_read(dev_fd, buffer, BLOCK_SIZE);
@@ -63,18 +64,20 @@ int ramfs_open(struct vfs_fd *fd, const char *path, int flags)
     name_len = strlen(header->name);
     path_len = strlen(path);
     
-    size_t file_size = BLOCK_SIZE;
     if(!strncmp(header->name, path, name_len))
-    {
-      vfs_lseek(dev_fd, file_size, VFS_SEEK_CUR);
-      continue;
-    }
+      break;
+    
+    size_t file_size = octal_to_dec(header->size) + BLOCK_SIZE;
+    if(IS_ALIGN(file_size, BLOCK_SIZE))
+      file_size = ALIGNUP(file_size, BLOCK_SIZE);
+
+    vfs_lseek(dev_fd, file_size, VFS_SEEK_SET);
   } while(name_len < path_len);
   
   if(strcmp(header->name, path))
     return -1;
-  
-  ramfs_fd->absolute_offset = vfs_lseek(dev_fd, 0, VFS_SEEK_CUR) - BLOCK_SIZE;
+
+  ramfs_fd->absolute_offset = vfs_lseek(dev_fd, 0, VFS_SEEK_CUR);
   fd->fs_file_info = ramfs_fd;
   vfs_lseek(dev_fd, old_offset, VFS_SEEK_SET);
 

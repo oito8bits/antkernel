@@ -42,10 +42,12 @@ struct sched_process
 
 void sched(struct context *context);
 struct sched_process *sched_create_process(const char *);
+void sched_add_process(struct sched_process *);
 void sched_destroy_process(struct sched_process *);
 void sched_destroy_curr_process(void);
 struct sched_thread *sched_create_thread(struct sched_process *, const char *, void *, void *, enum sched_space_type);
 void sched_destroy_thread(struct sched_thread *);
+struct sched_process *sched_get_current_process(void);
 void sched_init(void);
 
 #endif
