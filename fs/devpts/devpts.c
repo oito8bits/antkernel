@@ -26,6 +26,9 @@ size_t devpts_read(struct vfs_fd *fd, void *buffer, size_t count)
   {
     buffer_ch[i] = keyboard_get_char();
     fb_put_char(buffer_ch[i]);
+
+    if(buffer_ch[i] == '\n')
+      break;
   }
 }
 struct vfs_ops *devpts_get_ops(void)
