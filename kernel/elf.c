@@ -36,7 +36,7 @@ int elf_parse(struct elf_64 *elf)
 
   return 0;
 }
-extern void tlb_flush(void);
+
 int elf_load(struct elf_64 *elf, struct table_entry *table)
 {
   size_t table_size = sizeof(struct table_entry) * 512;
@@ -61,7 +61,6 @@ int elf_load(struct elf_64 *elf, struct table_entry *table)
 
     vmm_map(table, 0, (void *) vaddr, pages , USER_DATA);
     pg_switch_top_table(pg_virt_to_phys(table));
-    //tlb_flush();
     
     vfs_lseek(elf->fd, elf->program_header[i].offset, VFS_SEEK_SET);
     vfs_read(elf->fd, (void *) vaddr, size);
