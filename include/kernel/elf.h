@@ -59,7 +59,8 @@ struct elf_64
   int fd;
 };
 
-int elf_parse(struct elf_64 *);
+int elf_parse(struct elf_64 *, const char *);
+void elf_close(struct elf_64 *);
 int elf_load(struct elf_64 *, struct table_entry *);
 
 #endif

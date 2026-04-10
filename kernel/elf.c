@@ -5,6 +5,7 @@
 #include <mm/heap.h>
 #include <libk/string.h>
 #include <kernel/sched/sched.h>
+#include <fs/vfs.h>
 #include <pg.h>
 
 static int is_elf(struct elf_64 *elf)
@@ -12,9 +13,13 @@ static int is_elf(struct elf_64 *elf)
   return *((u32 *) &elf->header.ident) == 0x464c457f;
 }
 
-int elf_parse(struct elf_64 *elf)
+int elf_parse(struct elf_64 *elf, const char *path)
 {
-  int fd = elf->fd;
+  int fd = vfs_open(path, 0);
+  if(fd < 0)
+    return -1;
+
+  elf->fd = fd;
 
   vfs_read(fd, &elf->header, sizeof(struct elf_header));
   if(!is_elf(elf))
@@ -35,6 +40,13 @@ int elf_parse(struct elf_64 *elf)
   vfs_read(fd, elf->section_header, section_header_size);
 
   return 0;
+}
+
+void elf_close(struct elf_64 *elf)
+{
+  vfs_close(elf->fd);
+  heap_free(elf->program_header);
+  heap_free(elf->section_header);
 }
 
 int elf_load(struct elf_64 *elf, struct table_entry *table)
