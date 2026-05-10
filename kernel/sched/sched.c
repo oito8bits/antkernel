@@ -1,7 +1,9 @@
 #include <kernel/sched/sched.h>
 #include <libk/string.h>
+#include <libk/stddef.h>
 #include <mm/heap.h>
 #include <mm/vmm.h>
+#include <ant/align.h>
 
 struct sched_process processes;
 struct sched_process dead_processes;
@@ -14,11 +16,11 @@ size_t last_free_tid;
 
 static void sched_idle(void);
 
-static u64 create_stack(struct table_entry *top_table)
+static void *create_stack(struct table_entry *top_table)
 {
   vmm_map(top_table, 0, (void *) USER_STACK_BASE, STACK_SIZE / PAGE_SIZE, USER_DATA);
   
-  return USER_STACK_TOP;
+  return (void *) USER_STACK_TOP;
 }
 
 static void destroy_stack(struct table_entry *top_table, u64 addr)
@@ -68,10 +70,13 @@ void sched(struct context *context)
   switch_top_table(current_thread);
 }
 
-struct sched_process *sched_create_process(const char *name)
+struct sched_process *sched_create_process(const char *path, u64 status)
 {
   struct sched_process *new_process = heap_malloc(sizeof(struct sched_process));
 
+  new_process->path = heap_malloc(strlen(path) + 1);
+  strcpy(new_process->path, path);
+  new_process->status = status;
   new_process->pid = last_free_pid++;
 
   size_t table_size = sizeof(struct table_entry) * 512;
@@ -91,6 +96,60 @@ void sched_add_process(struct sched_process *process)
   list_add(&process->head, &processes.head);
 }
 
+struct sched_process *sched_copy_process(struct sched_process *proc_dest, struct sched_process *proc_src)
+{
+  #include <libk/kprintf.h>
+
+  size_t stack_size = UNIT_KiB(16);
+  char *new_stack = heap_malloc(stack_size);
+  struct list_head *pos;
+  list_for_each(pos, &proc_src->threads.head)
+  {
+    struct sched_thread *thread = (struct sched_thread *) pos;
+    struct sched_thread *new_thread = sched_create_thread(proc_dest,
+                                                          NULL, 
+                                                          (void *) proc_src->elf.header.entry,
+                                                          NULL, 
+                                                          USER_SPACE);
+
+    memcpy(&new_thread->context, &thread->context, sizeof(struct context));
+    new_thread->status = thread->status;
+    new_thread->parent = proc_dest;
+    memcpy(new_stack, (void *) USER_STACK_BASE, stack_size);
+    pg_switch_top_table(pg_virt_to_phys(proc_dest->top_table));
+    memcpy((void *) USER_STACK_BASE, new_stack, stack_size);
+    pg_switch_top_table(pg_virt_to_phys(proc_src->top_table));
+
+    list_add(&new_thread->head, &proc_dest->threads.head);
+  }
+
+  heap_free(new_stack);
+  
+  elf_parse(&proc_dest->elf, proc_src->path);
+  elf_load(&proc_dest->elf, proc_dest->top_table);
+
+  struct elf_64 *elf_dest = &proc_dest->elf;
+  struct elf_64 *elf_src = &proc_src->elf;
+  size_t i;
+  for(i = 0; i < elf_dest->header.phnum; i++)
+  {
+    size_t ph_sz = elf_dest->program_header[i].memsz;
+    struct elf_program_header *ph = elf_dest->program_header;
+    
+    if(ph->flags != 1)
+      continue;
+
+    void *ph_buf =  heap_malloc(ph[i].memsz);
+    memcpy(ph_buf, (void *) ph[i].vaddr, ph_sz);
+    pg_switch_top_table(pg_virt_to_phys(proc_dest->top_table));
+    memcpy((void *) ph[i].vaddr, ph_buf, ph_sz); 
+
+    pg_switch_top_table(pg_virt_to_phys(proc_src->top_table));
+  }
+
+  return proc_dest;
+}
+
 void sched_destroy_process(struct sched_process *process)
 {
   list_del(&process->head);
@@ -99,7 +158,9 @@ void sched_destroy_process(struct sched_process *process)
   struct list_head *pos;
   list_for_each(pos, &process->threads.head)
     sched_destroy_thread((struct sched_thread *) pos);
-  
+
+  heap_free(process->path);
+  elf_close(&process->elf);
   heap_free(process);
 }
 
@@ -137,7 +198,8 @@ struct sched_thread *sched_create_thread(struct sched_process *process, const ch
 
   thread->tid = last_free_tid++;
   thread->status = READY;
-  thread->context.rsp = create_stack(process->top_table);
+  thread->rsp = create_stack(process->top_table);
+  thread->context.rsp = (u64) thread->rsp;
   thread->context.rflags = 0x202;
   thread->context.rip = (u64) entrypoint;
   thread->context.rdi = (u64) arg;
@@ -176,7 +238,7 @@ void sched_init(void)
   list_head_init(&processes.head); 
   list_head_init(&dead_processes.head);
  
-  struct sched_process *process = sched_create_process("idle process");
+  struct sched_process *process = sched_create_process("idle process", READY);
   current_thread = sched_create_thread(process, "main thread", sched_idle, 0, KERNEL_SPACE);
   sched_add_process(process); 
 }

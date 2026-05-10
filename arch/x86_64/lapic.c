@@ -22,12 +22,12 @@ static void disable_pic8259a(void)
   io_outb(PIC_DATA_SLAVE, 0xff);
 }
 
-static void lapic_write_reg(enum lapic_register reg, u32 value)
+void lapic_write_reg(enum lapic_register reg, u32 value)
 {
   *((u32 *) (lapic_base + reg)) = value;
 }
 
-static u32 lapic_read_reg(enum lapic_register reg)
+u32 lapic_read_reg(enum lapic_register reg)
 {
   return *((u32 *) (lapic_base + reg));
 }

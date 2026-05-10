@@ -1,6 +1,8 @@
 #ifndef _INCLUDE_LAPIC_
 #define _INCLUDE_LAPIC_
 
+#include <ant/types.h>
+
 #define PIC_COMMAND_MASTER 0x20
 #define PIC_COMMAND_SLAVE 0xA0
 
@@ -45,6 +47,8 @@ enum lapic_register
   LAPIC_TMR_BASEDIV = (1 << 20)
 };
 
+void lapic_write_reg(enum lapic_register, u32);
+u32 lapic_read_reg(enum lapic_register);
 void lapic_timer_enable(void);
 void lapic_timer_isr(void);
 void lapic_eoi(void);

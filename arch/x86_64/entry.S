@@ -40,7 +40,7 @@ entry:
   popq  %r15
   popq  %rbp
   popq  %rbx
-  popq  %rax
+  addq  $8, %rsp
   popq  %rcx
   popq  %rdx
   popq  %rsi

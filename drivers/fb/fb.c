@@ -2,12 +2,15 @@
 #include "font.h"
 #include <mm/vmm.h>
 #include <ant/boot.h>
+#include <kernel/lock.h>
 
 static u32 *frame_buffer_base;
 static u32 width, height;
 static u16 cursor_x, cursor_y;
 static u32 background_color;
 static u32 foreground_color;
+
+static struct lock fb_lock;
 
 static void plot_pixel(u16 x, u16 y, u32 color)
 {
@@ -109,7 +112,9 @@ void fb_put_char(u8 c)
 
 void fb_write(char *s)
 {
+  lock_acquire(&fb_lock);
   while(*s) fb_put_char(*s++);
+  lock_release(&fb_lock);
 }
 
 void fb_init(void)

@@ -7,12 +7,13 @@
 #include <mm/heap.h>
 #include <arch/int.h>
 #include <fs/vfs.h>
+#include <libk/kprintf.h>
 #include <kernel/exec.h>
 #include <kernel/sched/sched.h>
 
 void init(void)
 {
-  exec_execve("/userland/shell", NULL, NULL);
+  exec_execve("/userland/hello_world", NULL, NULL);
   int_timer_enable();
 }
 
@@ -23,9 +24,13 @@ int kmain(void)
   fb_init();
   acpi_init();
   heap_init();
+  kprintf("Stating VFS...\n");
   vfs_init();
+  kprintf("Stating Sched...\n");
   sched_init();
+  kprintf("Stating Interrupts...\n");
   int_init();
+  kprintf("Stating Syscalls...\n\n");
   syscall_init();
   init();
  

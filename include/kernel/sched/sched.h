@@ -7,12 +7,10 @@
 #include <kernel/elf.h>
 #include <mm/vmm.h>
 
-enum process_status
-{
-  READY,
-  RUNNING,
-  DEAD
-};
+#define FORK    (1UL << 0)
+#define READY   (1UL << 1)
+#define RUNNING (1UL << 2)
+#define DEAD    (1UL << 3)
 
 enum sched_space_type
 {
@@ -26,23 +24,26 @@ struct sched_thread
   size_t tid;
   struct context context;
   void *rsp0;
-  enum process_status status;
+  void *rsp;
+  u64 status;
   struct sched_process *parent;
 };
 
 struct sched_process
 {
   struct list_head head;
+  char *path;
   size_t pid;
   struct table_entry *top_table; 
   struct sched_thread threads;
-  enum process_status status;
+  u64 status;
   struct elf_64 elf;
 };
 
 void sched(struct context *context);
-struct sched_process *sched_create_process(const char *);
+struct sched_process *sched_create_process(const char *, u64);
 void sched_add_process(struct sched_process *);
+struct sched_process *sched_copy_process(struct sched_process *, struct sched_process *);
 void sched_destroy_process(struct sched_process *);
 void sched_destroy_curr_process(void);
 struct sched_thread *sched_create_thread(struct sched_process *, const char *, void *, void *, enum sched_space_type);
