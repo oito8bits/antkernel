@@ -50,4 +50,4 @@ entry:
 
   swapgs
 
-  sysret
+  sysretq
