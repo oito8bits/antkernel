@@ -10,6 +10,7 @@ int fork(void)
   if(current_process->status & FORK)
   {
     current_process->status &= ~FORK;
+    timer_enable();
     return 0;
   }
 
