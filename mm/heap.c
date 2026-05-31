@@ -34,10 +34,10 @@ static struct block *resize_heap(size_t size)
   vmm_map(0, 0, heap_end, size / PAGE_SIZE, BIT_PRESENT | BIT_WRITE);
 
   struct block *last_block = (struct block *) heap_head.head.prev;
-  last_block->size += size;
+  last_block->size += size - sizeof(struct block);
 
   heap_size += size;
-
+  
   return last_block;
 }
 
@@ -52,7 +52,7 @@ static struct block *search_first_free_block(size_t size)
     if(!p->free)
       continue;
 
-    if(size <= p->size + sizeof(struct block))
+    if(size + sizeof(struct block) <= p->size)
       break;
 
     if(list_is_head(p->head.next, &heap_head.head))
