@@ -24,7 +24,6 @@ static void colapse_free_blocks(void)
   }
 }
 
-__attribute__((noinline))
 static struct block *resize_heap(size_t size)
 {
   void *heap_end = heap_base + heap_size;
@@ -41,7 +40,6 @@ static struct block *resize_heap(size_t size)
   return last_block;
 }
 
-__attribute__((noinline))
 static struct block *search_first_free_block(size_t size)
 {
   struct block *p = 0;
