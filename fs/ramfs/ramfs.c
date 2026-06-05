@@ -42,7 +42,6 @@ struct vfs_ops *ramfs_get_ops(void)
 
 int ramfs_open(struct vfs_fd *fd, const char *path, int flags)
 {
-#include <libk/kprintf.h>
   int dev_fd = fd->mp->dev_fd;
   if(dev_fd < 0)
     return dev_fd;
