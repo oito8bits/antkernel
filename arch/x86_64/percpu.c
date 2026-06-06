@@ -1,4 +1,4 @@
-#include "percpu.h"
+#include <arch/percpu.h>
 #include "msr.h"
 
 extern u64 _end_stack;
@@ -8,6 +8,10 @@ static void set_gs_base(void)
 {
   wrmsr(0xC0000101, (u64) &cpu);
   wrmsr(0xC0000102, (u64) &cpu);
+}
+struct percpu *percpu_get_gs_base(void)
+{
+  return &cpu;
 }
 
 void percpu_init(void)

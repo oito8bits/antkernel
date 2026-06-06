@@ -19,9 +19,25 @@ isr_handler:
   pushq %r10
   pushq %r9
   pushq %r8
+  
+  # Save IA32_KERNEL_GS_BASE context
+  xorq %rax, %rax
+  movl $0xc0000102, %ecx
+  rdmsr
+  shlq $32, %rdx
+  orq %rdx, %rax
+  pushq %rax
 
   movq  %rsp, %rdi
   callq isr_handler_c
+
+  # Restore IA32_KERNEL_GS_BASE context
+  xorq %rax, %rax
+  popq %rax
+  movq %rax, %rdx
+  shrq $32, %rdx
+  movl $0xc0000102, %ecx
+  wrmsr  
 
   popq  %r8
   popq  %r9

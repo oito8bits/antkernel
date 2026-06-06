@@ -1,4 +1,5 @@
 #include <kernel/sched/sched.h>
+#include <arch/percpu.h>
 #include <libk/string.h>
 #include <libk/stddef.h>
 #include <mm/heap.h>
@@ -98,8 +99,6 @@ void sched_add_process(struct sched_process *process)
 
 struct sched_process *sched_copy_process(struct sched_process *proc_dest, struct sched_process *proc_src)
 {
-  #include <libk/kprintf.h>
-
   size_t stack_size = UNIT_KiB(16);
   char *new_stack = heap_malloc(stack_size);
   struct list_head *pos;
@@ -119,8 +118,6 @@ struct sched_process *sched_copy_process(struct sched_process *proc_dest, struct
     pg_switch_top_table(pg_virt_to_phys(proc_dest->top_table));
     memcpy((void *) USER_STACK_BASE, new_stack, stack_size);
     pg_switch_top_table(pg_virt_to_phys(proc_src->top_table));
-
-    list_add(&new_thread->head, &proc_dest->threads.head);
   }
 
   heap_free(new_stack);
@@ -154,11 +151,7 @@ void sched_destroy_process(struct sched_process *process)
 {
   list_del(&process->head);
   pmm_free_table(pg_virt_to_phys(process->top_table));
- 
-  struct list_head *pos;
-  list_for_each(pos, &process->threads.head)
-    sched_destroy_thread((struct sched_thread *) pos);
-
+  sched_destroy_threads(&process->threads);
   heap_free(process->path);
   elf_close(&process->elf);
   heap_free(process);
@@ -199,6 +192,7 @@ struct sched_thread *sched_create_thread(struct sched_process *process, const ch
   thread->tid = last_free_tid++;
   thread->status = READY;
   thread->rsp = create_stack(process->top_table);
+  thread->context.kernel_gs_base = (u64) percpu_get_gs_base();
   thread->context.rsp = (u64) thread->rsp;
   thread->context.rflags = 0x202;
   thread->context.rip = (u64) entrypoint;
@@ -218,6 +212,13 @@ void sched_destroy_thread(struct sched_thread *thread)
   destroy_stack(thread->parent->top_table, thread->context.rsp);
   heap_free(thread->rsp0);
   heap_free(thread);
+}
+
+void sched_destroy_threads(struct sched_thread *threads)
+{ 
+  struct list_head *pos;
+  list_for_each(pos, &threads->head)
+    sched_destroy_thread((struct sched_thread *) pos);
 }
 
 struct sched_process *sched_get_current_process(void)

@@ -26,10 +26,15 @@ entry:
   pushq %r10
   pushq %r9
   pushq %r8
-  
+
+  # I need this push because of 
+  # the kernel_gs_base in the struct context.
+  pushq $0x0
+ 
   movq  %rsp, %rdi
   call syscall_handler
-  
+
+  addq  $8, %rsp
   popq  %r8
   popq  %r9
   popq  %r10

@@ -5,6 +5,7 @@
 
 struct context
 {
+  u64 kernel_gs_base;
   u64 r8;
   u64 r9;
   u64 r10;

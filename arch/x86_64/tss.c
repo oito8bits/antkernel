@@ -1,4 +1,4 @@
-#include "tss.h"
+#include <arch/x86_64/tss.h>
 
 struct tss tss;
 

@@ -11,9 +11,18 @@
 #include <kernel/exec.h>
 #include <kernel/sched/sched.h>
 
-void init(void)
+static void exec_shell(const char *path, const char *arg, const char *env)
 {
-  exec_execve("/userland/hello_world", NULL, NULL);
+  struct sched_process *process = sched_create_process(path, READY);
+  elf_parse(&process->elf, path);
+  elf_load(&process->elf, process->top_table);
+  sched_create_thread(process, "idle thread", (void *) process->elf.header.entry, NULL, USER_SPACE);
+  sched_add_process(process);
+}
+
+static void init(void)
+{
+  exec_shell("/userland/shell", NULL, NULL);
   int_timer_enable();
 }
 
@@ -24,13 +33,9 @@ int kmain(void)
   fb_init();
   acpi_init();
   heap_init();
-  kprintf("Stating VFS...\n");
   vfs_init();
-  kprintf("Stating Sched...\n");
   sched_init();
-  kprintf("Stating Interrupts...\n");
   int_init();
-  kprintf("Stating Syscalls...\n\n");
   syscall_init();
   init();
  
