@@ -32,5 +32,6 @@ struct context
 
 void context_copy(struct context *, struct context *);
 void context_set_kstack(void *);
+void context_fork(struct context *, struct context *);
 
 #endif

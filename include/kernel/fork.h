@@ -1,6 +1,8 @@
 #ifndef _INCLUDE_FORK_
 #define _INCLUDE_FORK_
 
-int fork(void);
+#include <arch/x86_64/context.h>
+
+int fork(struct context *);
 
 #endif

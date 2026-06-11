@@ -55,7 +55,7 @@ int ramfs_open(struct vfs_fd *fd, const char *path, int flags)
   struct ramfs_tar_header *header;
   struct ramfs_fd *ramfs_fd = heap_malloc(sizeof(struct ramfs_fd));
   char buffer[BLOCK_SIZE];
-  
+#include <libk/kprintf.h> 
   do
   {
     vfs_read(dev_fd, buffer, BLOCK_SIZE);
@@ -63,6 +63,7 @@ int ramfs_open(struct vfs_fd *fd, const char *path, int flags)
     
     name_len = strlen(header->name);
     path_len = strlen(path);
+    kprintf("hname: %s, path: %s\n", header->name, path);
     if(!strcmp(header->name, path))
       break;
     

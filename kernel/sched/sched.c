@@ -97,36 +97,33 @@ void sched_add_process(struct sched_process *process)
   list_add(&process->head, &processes.head);
 }
 
-struct sched_process *sched_copy_process(struct sched_process *proc_dest, struct sched_process *proc_src)
+struct sched_process *sched_copy_process(struct sched_process *proc_dest, struct context *ctx)
 {
   size_t stack_size = UNIT_KiB(16);
   char *new_stack = heap_malloc(stack_size);
-  struct list_head *pos;
-  list_for_each(pos, &proc_src->threads.head)
-  {
-    struct sched_thread *thread = (struct sched_thread *) pos;
-    struct sched_thread *new_thread = sched_create_thread(proc_dest,
-                                                          NULL, 
-                                                          (void *) proc_src->elf.header.entry,
-                                                          NULL, 
-                                                          USER_SPACE);
+  struct sched_thread *thread = current_thread;
+  struct sched_process *proc = thread->parent;
+  struct sched_thread *new_thread = sched_create_thread(proc_dest,
+                                                        NULL, 
+                                                        (void *) proc->elf.header.entry,
+                                                        NULL, 
+                                                        USER_SPACE);
 
-    memcpy(&new_thread->context, &thread->context, sizeof(struct context));
-    new_thread->status = thread->status;
-    new_thread->parent = proc_dest;
-    memcpy(new_stack, (void *) USER_STACK_BASE, stack_size);
-    pg_switch_top_table(pg_virt_to_phys(proc_dest->top_table));
-    memcpy((void *) USER_STACK_BASE, new_stack, stack_size);
-    pg_switch_top_table(pg_virt_to_phys(proc_src->top_table));
-  }
-
+  context_fork(&new_thread->context, ctx);
+  new_thread->status = thread->status;
+  new_thread->parent = proc_dest;
+  memcpy(new_stack, (void *) USER_STACK_BASE, stack_size);
+  pg_switch_top_table(pg_virt_to_phys(proc_dest->top_table));
+  memcpy((void *) USER_STACK_BASE, new_stack, stack_size);
+  pg_switch_top_table(pg_virt_to_phys(proc->top_table));
+  
   heap_free(new_stack);
   
-  elf_parse(&proc_dest->elf, proc_src->path);
+  elf_parse(&proc_dest->elf, proc->path);
   elf_load(&proc_dest->elf, proc_dest->top_table);
 
   struct elf_64 *elf_dest = &proc_dest->elf;
-  struct elf_64 *elf_src = &proc_src->elf;
+  struct elf_64 *elf_src = &proc->elf;
   size_t i;
   for(i = 0; i < elf_dest->header.phnum; i++)
   {
@@ -141,7 +138,7 @@ struct sched_process *sched_copy_process(struct sched_process *proc_dest, struct
     pg_switch_top_table(pg_virt_to_phys(proc_dest->top_table));
     memcpy((void *) ph[i].vaddr, ph_buf, ph_sz); 
 
-    pg_switch_top_table(pg_virt_to_phys(proc_src->top_table));
+    pg_switch_top_table(pg_virt_to_phys(proc->top_table));
   }
 
   return proc_dest;

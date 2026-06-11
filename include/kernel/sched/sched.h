@@ -43,7 +43,7 @@ struct sched_process
 void sched(struct context *context);
 struct sched_process *sched_create_process(const char *, u64);
 void sched_add_process(struct sched_process *);
-struct sched_process *sched_copy_process(struct sched_process *, struct sched_process *);
+struct sched_process *sched_copy_process(struct sched_process *, struct context *);
 void sched_destroy_process(struct sched_process *);
 void sched_exit(struct sched_process *);
 void sched_destroy_curr_process(void);

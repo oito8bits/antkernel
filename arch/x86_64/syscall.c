@@ -44,7 +44,7 @@ u64 syscall_handler(struct context *ctx)
       ret = vfs_lseek(ctx->rdi, ctx->rsi, ctx->rdx);
       break;
     case 57:
-      ret = fork();
+      ret = fork(ctx);
       break;
     case 59:
       ret = exec_execve((const char *) ctx->rdi, (const char *) ctx->rsi, (const char *) ctx->rdx);
