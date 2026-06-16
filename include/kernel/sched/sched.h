@@ -7,7 +7,6 @@
 #include <kernel/elf.h>
 #include <mm/vmm.h>
 
-#define FORK    (1UL << 0)
 #define READY   (1UL << 1)
 #define RUNNING (1UL << 2)
 #define DEAD    (1UL << 3)
