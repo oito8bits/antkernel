@@ -108,6 +108,8 @@ struct sched_process *sched_copy_process(struct sched_process *proc_dest, struct
                                                         (void *) proc->elf.header.entry,
                                                         NULL, 
                                                         USER_SPACE);
+  if(new_thread == 0)
+    return 0;
 
   context_fork(&new_thread->context, ctx);
   new_thread->status = thread->status;
@@ -119,7 +121,9 @@ struct sched_process *sched_copy_process(struct sched_process *proc_dest, struct
   
   heap_free(new_stack);
   
-  elf_parse(&proc_dest->elf, proc->path);
+  if(elf_parse(&proc_dest->elf, proc->path) < 0)
+    return 0;
+
   elf_load(&proc_dest->elf, proc_dest->top_table);
 
   struct elf_64 *elf_dest = &proc_dest->elf;
@@ -221,6 +225,11 @@ void sched_destroy_threads(struct sched_thread *threads)
 struct sched_process *sched_get_current_process(void)
 {
   return current_thread->parent; 
+}
+
+struct sched_thread *sched_get_current_thread(void)
+{
+  return current_thread;
 }
 
 static void sched_idle(void)
