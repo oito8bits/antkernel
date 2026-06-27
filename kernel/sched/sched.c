@@ -15,8 +15,6 @@ struct sched_thread *current_thread;
 size_t last_free_pid;
 size_t last_free_tid;
 
-static void sched_idle(void);
-
 static void *create_stack(struct table_entry *top_table)
 {
   vmm_map(top_table, 0, (void *) USER_STACK_BASE, STACK_SIZE / PAGE_SIZE, USER_DATA);
@@ -48,7 +46,7 @@ void sched(struct context *context)
 
     sched_destroy_process(dead_process);  
   }
- 
+  
   if(current_thread->status != DEAD) 
     thread = (struct sched_thread *) current_thread->head.next;
   else
@@ -86,8 +84,11 @@ struct sched_process *sched_create_process(const char *path, u64 status)
   vmm_kappend_kernel_space(new_process->top_table);
   if(new_process->top_table == 0)
     return 0;
-  
+ 
+  new_process->parent = NULL;
+ 
   list_head_init(&new_process->threads.head);
+  list_head_init(&new_process->wait.head);
 
   return new_process;
 }
@@ -114,6 +115,7 @@ struct sched_process *sched_copy_process(struct sched_process *proc_dest, struct
   context_fork(&new_thread->context, ctx);
   new_thread->status = thread->status;
   new_thread->parent = proc_dest;
+  proc_dest->parent = thread->parent;
   memcpy(new_stack, (void *) USER_STACK_BASE, stack_size);
   pg_switch_top_table(pg_virt_to_phys(proc_dest->top_table));
   memcpy((void *) USER_STACK_BASE, new_stack, stack_size);
@@ -161,10 +163,27 @@ void sched_destroy_process(struct sched_process *process)
 void sched_exit(struct sched_process *process)
 {
   list_del(&process->head);
+  struct sched_process *parent = process->parent;
+  if(parent)
+  {
+    struct list_head *pos;
+    list_for_each(pos, &parent->wait.head)
+    {
+      list_del(pos);
+      list_add(pos, &parent->threads.head);
+    }
+  }
+
   current_thread->status = DEAD;
   next_process = (struct sched_process *) process->head.next; 
   list_add(&process->head, &dead_processes.head);
   sched_idle();
+}
+
+void sched_wait(struct sched_thread *thread)
+{
+  thread->status |= WAIT;
+  list_add(&thread->head, &thread->parent->wait.head); 
 }
 
 void sched_destroy_curr_process(void)
@@ -232,7 +251,7 @@ struct sched_thread *sched_get_current_thread(void)
   return current_thread;
 }
 
-static void sched_idle(void)
+void sched_idle(void)
 {
   while(1)
   {

@@ -4,6 +4,7 @@
 #include <kernel/fork.h>
 #include <kernel/exec.h>
 #include <kernel/exit.h>
+#include <kernel/wait.h>
 
 #include "msr.h"
 
@@ -51,6 +52,13 @@ u64 syscall_handler(struct context *ctx)
       break;
     case 60:
       exit(ctx->rdi);
+      break;
+    case 61:
+      ret = wait_wait4((int) ctx->rdi,
+                       (int *) ctx->rsi,
+                       (int) ctx->rdx,
+                       (struct rusage *) ctx->r10,
+                       (struct context *) ctx);
       break;
   }
 
