@@ -26,6 +26,15 @@ static inline void list_del(struct list_head *node)
   node->prev->next = node->next;
 }
 
+static inline void list_move_list(struct list_head *old, struct list_head *new)
+{
+  new->next = old->next;
+  new->prev = old->prev;
+  old->next->prev = new;
+  old->prev->next = new;
+  list_head_init(old);
+}
+
 static inline int list_is_head(struct list_head *list, struct list_head *head)
 {
   return list == head;

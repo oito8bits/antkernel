@@ -14,7 +14,7 @@ int wait_wait4(int pid,
 
   timer_disable();
   context_fork(&current_thread->context, ctx);
-  sched_wait(current_thread);
+  current_thread->status = WAIT;
   timer_enable();
 
   sched_idle();

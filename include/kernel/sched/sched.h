@@ -7,10 +7,13 @@
 #include <kernel/elf.h>
 #include <mm/vmm.h>
 
-#define WAIT    (1UL << 0)
-#define READY   (1UL << 1)
-#define RUNNING (1UL << 2)
-#define DEAD    (1UL << 3)
+enum sched_status
+{
+  WAIT,
+  READY,
+  RUNNING,
+  DEAD
+};
 
 enum sched_space_type
 {
@@ -25,7 +28,7 @@ struct sched_thread
   struct context context;
   void *rsp0;
   void *rsp;
-  u64 status;
+  enum sched_status status;
   struct sched_process *parent;
 };
 
@@ -37,7 +40,7 @@ struct sched_process
   struct table_entry *top_table; 
   struct sched_thread threads;
   struct sched_thread wait;
-  u64 status;
+  enum sched_status status;
   struct elf_64 elf;
   struct sched_process *parent;
 };
@@ -48,7 +51,6 @@ void sched_add_process(struct sched_process *);
 struct sched_process *sched_copy_process(struct sched_process *, struct context *);
 void sched_destroy_process(struct sched_process *);
 void sched_exit(struct sched_process *);
-void sched_wait(struct sched_thread *thread);
 void sched_destroy_curr_process(void);
 struct sched_thread *sched_create_thread(struct sched_process *, const char *, void *, void *, enum sched_space_type);
 void sched_destroy_thread(struct sched_thread *);

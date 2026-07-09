@@ -7,6 +7,7 @@
 #include <ant/align.h>
 
 struct sched_process processes;
+struct sched_process empty_processes;
 struct sched_process dead_processes;
 
 struct sched_process *next_process;
@@ -46,12 +47,12 @@ void sched(struct context *context)
 
     sched_destroy_process(dead_process);  
   }
-  
+
   if(current_thread->status != DEAD) 
     thread = (struct sched_thread *) current_thread->head.next;
   else
     thread = (struct sched_thread *) next_process->threads.head.next;
-
+  
   if(list_is_head(&thread->head, &current_thread->parent->threads.head))
   {
     struct sched_process *next = (struct sched_process *) current_thread->parent->head.next;
@@ -60,7 +61,23 @@ void sched(struct context *context)
     thread = (struct sched_thread *) next->threads.head.next;
   }
 
-  context_copy(&current_thread->context, context);
+  if(current_thread->status != WAIT)
+  {
+    context_copy(&current_thread->context, context);
+  }
+  else if(current_thread->status == WAIT)
+  {
+    list_del(&current_thread->head);
+    list_add(&current_thread->head, &current_thread->parent->wait.head); 
+    
+    struct sched_process *parent = current_thread->parent;
+    if(list_empty(&parent->threads.head))
+    {
+      list_del(&parent->head);
+      list_add(&parent->head, &empty_processes.head);
+    }
+  }
+  
   current_thread->status = READY;
   current_thread = thread;
   current_thread->status = RUNNING;
@@ -72,6 +89,11 @@ void sched(struct context *context)
 struct sched_process *sched_create_process(const char *path, u64 status)
 {
   struct sched_process *new_process = heap_malloc(sizeof(struct sched_process));
+  if(new_process == NULL)
+    return NULL;
+
+  memset(new_process, 0, sizeof(struct sched_process));
+
 
   new_process->path = heap_malloc(strlen(path) + 1);
   strcpy(new_process->path, path);
@@ -84,8 +106,9 @@ struct sched_process *sched_create_process(const char *path, u64 status)
   vmm_kappend_kernel_space(new_process->top_table);
   if(new_process->top_table == 0)
     return 0;
- 
-  new_process->parent = NULL;
+
+  if(current_thread != NULL) 
+    new_process->parent = current_thread->parent;
  
   list_head_init(&new_process->threads.head);
   list_head_init(&new_process->wait.head);
@@ -114,8 +137,6 @@ struct sched_process *sched_copy_process(struct sched_process *proc_dest, struct
 
   context_fork(&new_thread->context, ctx);
   new_thread->status = thread->status;
-  new_thread->parent = proc_dest;
-  proc_dest->parent = thread->parent;
   memcpy(new_stack, (void *) USER_STACK_BASE, stack_size);
   pg_switch_top_table(pg_virt_to_phys(proc_dest->top_table));
   memcpy((void *) USER_STACK_BASE, new_stack, stack_size);
@@ -152,7 +173,20 @@ struct sched_process *sched_copy_process(struct sched_process *proc_dest, struct
 
 void sched_destroy_process(struct sched_process *process)
 {
+  struct list_head *pos;
   list_del(&process->head);
+  struct sched_process *parent = process->parent;
+  if(parent)
+  {
+    if(list_empty(&parent->threads.head))
+    {
+      list_del(&parent->head);
+      list_add(&parent->head, &processes.head);
+      parent->status = READY;
+    }
+    list_move_list(&parent->wait.head, &parent->threads.head);
+  }
+
   pmm_free_table(pg_virt_to_phys(process->top_table));
   sched_destroy_threads(&process->threads);
   heap_free(process->path);
@@ -162,28 +196,11 @@ void sched_destroy_process(struct sched_process *process)
 
 void sched_exit(struct sched_process *process)
 {
-  list_del(&process->head);
-  struct sched_process *parent = process->parent;
-  if(parent)
-  {
-    struct list_head *pos;
-    list_for_each(pos, &parent->wait.head)
-    {
-      list_del(pos);
-      list_add(pos, &parent->threads.head);
-    }
-  }
-
-  current_thread->status = DEAD;
   next_process = (struct sched_process *) process->head.next; 
+  list_del(&process->head);
+  current_thread->status = DEAD;
   list_add(&process->head, &dead_processes.head);
   sched_idle();
-}
-
-void sched_wait(struct sched_thread *thread)
-{
-  thread->status |= WAIT;
-  list_add(&thread->head, &thread->parent->wait.head); 
 }
 
 void sched_destroy_curr_process(void)
@@ -196,6 +213,8 @@ struct sched_thread *sched_create_thread(struct sched_process *process, const ch
   struct sched_thread *thread = heap_malloc(sizeof(struct sched_thread));
   if(thread == 0)
     return 0;
+  
+  memset(thread, 0, sizeof(struct sched_thread));
 
   switch(type)
   {
@@ -220,7 +239,6 @@ struct sched_thread *sched_create_thread(struct sched_process *process, const ch
   thread->context.rbp = 0;
   thread->rsp0 = heap_malloc(UNIT_KiB(16)) + UNIT_KiB(16);
   thread->parent = process;
-
   list_add(&thread->head, &process->threads.head);
 
   return thread;
@@ -263,6 +281,7 @@ void sched_init(void)
 {
   list_head_init(&processes.head); 
   list_head_init(&dead_processes.head);
+  list_head_init(&empty_processes.head);
  
   struct sched_process *process = sched_create_process("idle process", READY);
   current_thread = sched_create_thread(process, "main thread", sched_idle, 0, KERNEL_SPACE);
