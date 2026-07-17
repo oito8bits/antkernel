@@ -31,6 +31,7 @@ int kmain(void)
   pmm_init();
   vmm_init();
   fb_init();
+  console_init();
   acpi_init();
   heap_init();
   vfs_init();
