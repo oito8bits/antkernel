@@ -10,10 +10,11 @@
 struct keyboard_event
 {
   u8 code;
+  char key_char;
   u8 status;
 };
 
 void keyboard_irq_handler(void);
-char keyboard_get_char(void);
+void keyboard_get_event(struct keyboard_event *);
 
 #endif

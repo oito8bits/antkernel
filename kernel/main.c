@@ -10,6 +10,7 @@
 #include <libk/kprintf.h>
 #include <kernel/exec.h>
 #include <kernel/sched/sched.h>
+#include <kernel/console.h>
 
 static void exec_shell(const char *path, const char *arg, const char *env)
 {
@@ -30,10 +31,10 @@ int kmain(void)
 {
   pmm_init();
   vmm_init();
+  heap_init();
   fb_init();
   console_init();
   acpi_init();
-  heap_init();
   vfs_init();
   sched_init();
   int_init();

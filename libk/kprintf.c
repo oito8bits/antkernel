@@ -1,6 +1,6 @@
 #include <libk/kprintf.h>
 #include <stdarg.h>
-#include <fb/fb.h>
+#include <kernel/console.h>
 #include <libk/stdlib.h>
 
 static void print_hex(u64 number, _Bool uppercase)
@@ -10,7 +10,7 @@ static void print_hex(u64 number, _Bool uppercase)
 
   if(number == 0)
   {
-    fb_put_char('0');
+    console_put_char('0');
     return;
   }
 
@@ -26,11 +26,11 @@ static void print_hex(u64 number, _Bool uppercase)
       zero_num = 1;
 
     if(nibble < 0xa)
-      fb_put_char(nibble + '0');
+      console_put_char(nibble + '0');
     else if(uppercase)
-      fb_put_char(nibble - 10 + 'A');
+      console_put_char(nibble - 10 + 'A');
     else
-      fb_put_char(nibble - 10 + 'a');
+      console_put_char(nibble - 10 + 'a');
   }
 }
 
@@ -39,7 +39,7 @@ static void print_uint(u64 number)
   char string[21] = {0};
 
   utoa(string, number);
-  fb_write(string);
+  console_write(string);
 }
 
 static void print_int(s64 number, _Bool is_long)
@@ -49,19 +49,19 @@ static void print_int(s64 number, _Bool is_long)
 
   if(number < 0 && is_long)
   {
-    fb_put_char('-');
+    console_put_char('-');
     number_long = -number;
   }
   
   if((s32) number < 0 && !is_long)
   {
-    fb_put_char('-');
+    console_put_char('-');
     number_long = -((s32) number);
   }
   
   utoa(string, number_long);
   
-  fb_write(string);
+  console_write(string);
 }
 
 int kprintf(const char *format, ...)
@@ -78,7 +78,7 @@ int kprintf(const char *format, ...)
       format++;
       if(*format == '#')
       {
-        fb_write("0x");
+        console_write("0x");
         format++;
       }
 
@@ -93,13 +93,13 @@ int kprintf(const char *format, ...)
       switch(*format)
       {
         case '%':
-          fb_put_char('%');
+          console_put_char('%');
           break;
         case 'c':
-          fb_put_char((u8) va_arg(arg, int));
+          console_put_char((u8) va_arg(arg, int));
           break;
         case 's':
-          fb_write(va_arg(arg, void *));
+          console_write(va_arg(arg, void *));
           break;
         case 'i':
           print_int(va_arg(arg, u64), is_long);
@@ -116,7 +116,7 @@ int kprintf(const char *format, ...)
        }
     }
     else
-      fb_put_char(*format);
+      console_put_char(*format);
 
     format++;
   }

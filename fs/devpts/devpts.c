@@ -2,6 +2,7 @@
 #include <fs/devfs/devfs.h>
 #include <drivers/keyboard/ps2.h>
 #include <fs/mp.h>
+#include <kernel/console.h>
 #include <fb/fb.h>
 
 struct vfs_ops devpts_ops =
@@ -15,17 +16,19 @@ struct dev devpts_dev;
 
 size_t devpts_write(struct vfs_fd *fd, void *buffer, size_t count)
 {
-  fb_write(buffer);
+  console_write(buffer);
 }
 
 size_t devpts_read(struct vfs_fd *fd, void *buffer, size_t count)
 {
   char *buffer_ch = buffer;
   size_t i;
+  struct keyboard_event event;
   for(i = 0; i < count; i++)
   {
-    buffer_ch[i] = keyboard_get_char();
-    fb_put_char(buffer_ch[i]);
+    keyboard_get_event(&event);
+    buffer_ch[i] = event.key_char;
+    console_put_char(buffer_ch[i]);
 
     if(buffer_ch[i] == '\n')
     {
