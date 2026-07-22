@@ -1,6 +1,6 @@
 #include <kernel/sched/sched.h>
 #include <arch/percpu.h>
-#include <libk/string.h>
+#include <string.h>
 #include <libk/stddef.h>
 #include <mm/heap.h>
 #include <mm/vmm.h>

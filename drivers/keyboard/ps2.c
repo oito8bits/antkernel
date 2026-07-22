@@ -1,6 +1,6 @@
 #include <drivers/keyboard/ps2.h>
 #include <libk/kprintf.h>
-#include <libk/string.h>
+#include <string.h>
 #include <arch/io.h>
 
 #define NORMAL_STATE 0

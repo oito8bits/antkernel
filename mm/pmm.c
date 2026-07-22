@@ -1,7 +1,7 @@
 #include <mm/pmm.h>
 
 #include <mm/memmap.h>
-#include <libk/string.h>
+#include <string.h>
 #include <libk/stddef.h>
 #include <mm/early_heap.h>
 #include <mm/bitset.h>

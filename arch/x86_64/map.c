@@ -1,6 +1,6 @@
 #include <arch/map.h>
 #include <fb/fb.h>
-#include <libk/string.h>
+#include <string.h>
 #include <libk/stddef.h>
 #include <mm/pmm.h>
 

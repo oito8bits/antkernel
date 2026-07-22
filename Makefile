@@ -25,14 +25,22 @@ MM_OBJS = $(MM_SRCS:.c=.o)
 
 ANT_INCLUDE = include/
 
+LIBC_DIR = libk/antlibc
+LIBC = antlibc.a
+LIBC_PATH = $(LIBC_DIR)/$(LIBC)
+LIBC_INCLUDE = $(LIBC_DIR)/include
+
 CC = x86_64-linux-gnu-gcc
 AS = x86_64-linux-gnu-as
 LD = x86_64-linux-gnu-ld
-CFLAGS = -std=c99 -O2 -ffreestanding -nostdlib -I $(ANT_INCLUDE) -I $(DRIVERS_INCLUDE) -I $(X86-64_INCLUDE)
+CFLAGS = -std=c99 -O2 -ffreestanding -nostdlib -I $(ANT_INCLUDE) -I $(DRIVERS_INCLUDE) -I $(X86-64_INCLUDE) -I $(LIBC_INCLUDE)
 LDFLAGS = -T arch/x86_64/ant.ld -z noexecstack
 
-$(KERNEL_NAME): $(X86-64_OBJS) $(KERNEL_OBJS) $(FS_OBJS) $(DRIVERS_OBJS) $(LIBK_OBJS) $(MM_OBJS)
-	$(LD) $(LDFLAGS) $^ -o $@
+$(KERNEL_NAME): $(X86-64_OBJS) $(KERNEL_OBJS) $(FS_OBJS) $(DRIVERS_OBJS) $(LIBK_OBJS) $(MM_OBJS) $(LIBC_PATH)
+	$(LD) $(LDFLAGS) $^ -o $@ -L$(LIBC_DIR) -l:$(LIBC)
+
+$(LIBC_PATH):
+	make -C $(LIBC_DIR)
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $^
@@ -44,3 +52,4 @@ $(KERNEL_NAME): $(X86-64_OBJS) $(KERNEL_OBJS) $(FS_OBJS) $(DRIVERS_OBJS) $(LIBK_
 
 clean:
 	rm -rf $(X86-64_OBJS) $(KERNEL_OBJS) $(DRIVERS_OBJS) $(LIBK_OBJS) $(MM_OBJS) $(KERNEL_NAME)
+	make clean -C $(LIBC_DIR)

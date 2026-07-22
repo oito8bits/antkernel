@@ -1,6 +1,6 @@
 #include <arch/x86_64/context.h>
 #include <arch/percpu.h>
-#include <libk/string.h>
+#include <string.h>
 #include "tss.h"
 
 void context_copy(struct context *dst, struct context *src)

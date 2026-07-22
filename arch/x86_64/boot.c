@@ -1,6 +1,6 @@
 #include <ant/boot.h>
 #include <mm/mm.h>
-#include <libk/string.h>
+#include <string.h>
 
 static struct boot_info boot_info;
 struct efi_memory_descriptor memory_map[4096];

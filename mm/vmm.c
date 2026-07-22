@@ -4,7 +4,7 @@
 #include <ant/align.h>
 #include <mm/pmm.h>
 #include <ant/boot.h>
-#include <libk/string.h>
+#include <string.h>
 
 u8 _start_text;
 u8 _end_text;
