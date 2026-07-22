@@ -7,7 +7,6 @@
 #include <mm/heap.h>
 #include <arch/int.h>
 #include <fs/vfs.h>
-#include <libk/kprintf.h>
 #include <kernel/exec.h>
 #include <kernel/sched/sched.h>
 #include <kernel/console.h>
