@@ -1,0 +1,3 @@
+[submodule "libk/antlibc"]
+	path = libk/antlibc
+	url = https://github.com/oito8bits/antlibc
