@@ -1,6 +1,6 @@
 #include <mm/heap.h>
 #include <mm/vmm.h>
-#include <libk/kprintf.h>
+#include <stdio.h>
 #include <ant/align.h>
 
 static struct block heap_head;
@@ -73,7 +73,7 @@ void heap_show_blocks(void)
   list_for_each(pos, &heap_head.head)
   {
     p = (struct block *) pos;
-    kprintf("%li, free: %i, addr: %lx\n", p->size, p->free, p);
+    printf("%li, free: %i, addr: %lx\n", p->size, p->free, p);
   }
 }
 

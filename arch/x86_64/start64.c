@@ -1,6 +1,5 @@
 #include <ant/boot.h>
 #include <fb/fb.h>
-#include <libk/kprintf.h>
 #include <arch/percpu.h>
 #include "gdt.h"
 #include <mm/early_heap.h>

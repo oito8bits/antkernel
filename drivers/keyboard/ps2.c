@@ -1,5 +1,4 @@
 #include <drivers/keyboard/ps2.h>
-#include <libk/kprintf.h>
 #include <string.h>
 #include <arch/io.h>
 

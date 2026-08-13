@@ -2,7 +2,6 @@
 #include <arch/int.h>
 #include <drivers/acpi/acpi.h>
 #include <arch/map.h>
-#include <libk/kprintf.h>
 #include <pg.h>
 #include <mm/vmm.h>
 
