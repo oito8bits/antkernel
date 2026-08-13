@@ -4,22 +4,21 @@
 #include <arch/x86_64/ioapic.h>
 #include <drivers/keyboard/ps2.h>
 #include <kernel/sched/sched.h>
-#include <libk/kprintf.h>
+#include <stdio.h>
 
 static void print_context_exception(struct context *ctx)
 {
-  kprintf("Exception: %#lx\n", ctx->isr_number);
-  kprintf("RAX: %#lx, RBX: %#lx, RCX: %#lx, RDX: %#lx\n"
-          "RSI: %#lx, RDI: %#lx, R8:  %#lx, R9:  %#lx\n"
-          "R10: %#lx, R11: %#lx, R12: %#lx, R13: %#lx\n"
-          "R14: %#lx, R15: %#lx, RBP: %#lx, RSP: %#lx\n"
-          "RIP: %#lx, CS:  %#lx, SS:  %#lx, RFLAGS: %#lx\n",
-          ctx->rax, ctx->rbx, ctx->rcx, ctx->rdx,
-          ctx->rsi, ctx->rdi, ctx->r8, ctx->r9,
-          ctx->r10, ctx->r11, ctx->r12, ctx->r13,
-          ctx->r14, ctx->r15, ctx->rbp, ctx->rsp,
-          ctx->rip, ctx->cs, ctx->ss, ctx->rdx,
-          ctx->rax, ctx->rbx, ctx->rcx, ctx->rdx, ctx->rflags);
+  printf("Exception: %#lx\n", ctx->isr_number);
+  printf("RAX: %016lx, RBX: %016lx, RCX: %016lx, RDX: %016lx\n"
+         "RSI: %016lx, RDI: %016lx, R8:  %016lx, R9:  %016lx\n"
+         "R10: %016lx, R11: %016lx, R12: %016lx, R13: %016lx\n"
+         "R14: %016lx, R15: %016lx, RBP: %016lx, RSP: %016lx\n"
+         "RIP: %016lx, CS:  %016lx, SS:  %016lx, RFLAGS: %016lx\n",
+         ctx->rax, ctx->rbx, ctx->rcx, ctx->rdx,
+         ctx->rsi, ctx->rdi, ctx->r8,  ctx->r9,
+         ctx->r10, ctx->r11, ctx->r12, ctx->r13,
+         ctx->r14, ctx->r15, ctx->rbp, ctx->rsp,
+         ctx->rip, ctx->cs,  ctx->ss,  ctx->rflags);
   while(1); 
 }
 
