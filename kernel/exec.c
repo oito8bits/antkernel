@@ -14,7 +14,6 @@ int exec_execve(const char *path, const char *arg, const char *env)
 
   elf_load(&process->elf, process->top_table);
   if(sched_create_thread(process,
-                         "idle thread",
                          (void *) process->elf.header.entry,
                          NULL,
                          USER_SPACE) == NULL)

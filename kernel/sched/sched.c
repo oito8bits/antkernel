@@ -128,7 +128,6 @@ struct sched_process *sched_copy_process(struct sched_process *proc_dest, struct
   struct sched_thread *thread = current_thread;
   struct sched_process *proc = thread->parent;
   struct sched_thread *new_thread = sched_create_thread(proc_dest,
-                                                        NULL, 
                                                         (void *) proc->elf.header.entry,
                                                         NULL, 
                                                         USER_SPACE);
@@ -208,7 +207,7 @@ void sched_destroy_curr_process(void)
   sched_exit(current_thread->parent);
 }
 
-struct sched_thread *sched_create_thread(struct sched_process *process, const char *name, void *entrypoint, void *arg, enum sched_space_type type)
+struct sched_thread *sched_create_thread(struct sched_process *process, void *entrypoint, void *arg, enum sched_space_type type)
 {
   struct sched_thread *thread = heap_malloc(sizeof(struct sched_thread));
   if(thread == 0)
@@ -284,6 +283,6 @@ void sched_init(void)
   list_head_init(&empty_processes.head);
  
   struct sched_process *process = sched_create_process("idle process", READY);
-  current_thread = sched_create_thread(process, "main thread", sched_idle, 0, KERNEL_SPACE);
+  current_thread = sched_create_thread(process, sched_idle, 0, KERNEL_SPACE);
   sched_add_process(process); 
 }
